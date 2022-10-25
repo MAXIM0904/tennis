@@ -34,7 +34,7 @@ async def scores_create(
         db: Session = Depends(get_db)
 ):
     create_scores = scores_create.dict(exclude_unset=True)
-    create_scores['f_id'] = 586080284 #current_user.id,
+    create_scores['f_id'] = current_user.id
     db_create_scores = Scores(**create_scores)
     db.add(db_create_scores)
     db.commit()

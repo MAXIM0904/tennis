@@ -26,7 +26,7 @@ class PasswordCreate(BaseModel):
 
 class SmsCode(PasswordCreate):
     id: int
-    sms_code: int
+    code: int
 
     class Config:
         orm_mode = True
@@ -80,8 +80,16 @@ class ProfileUnf(ProfileUpdate):
         orm_mode = True
 
 
+class ProfilenModel(BaseModel):
+    success: bool = True
+    message: str = ""
+    data: ProfileUnf
+
+
 class Token(BaseModel):
-    access_token: str
+    success: bool = True
+    message: str = "Пользователь успешно авторизован"
+    data: dict
     token_type: str = "bearer"
 
 

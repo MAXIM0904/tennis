@@ -1,7 +1,41 @@
+from typing import List
+from datetime import date
 from pydantic import BaseModel
 from typing import Union
 from datetime import datetime
 
+
+class ApplicationCreate(BaseModel):
+
+    loc_szao: Union[bool, None]
+    loc_sao: Union[bool, None]
+    loc_svao: Union[bool, None]
+    loc_zao: Union[bool, None]
+    loc_cao: Union[bool, None]
+    loc_vao: Union[bool, None]
+    loc_uzao: Union[bool, None]
+    loc_uao: Union[bool, None]
+    loc_uvao: Union[bool, None]
+    game_type: Union[int, None]
+    game_date: Union[date, None]
+    game_time: Union[int, None]
+    duration: Union[int, None]
+    tennis_site: Union[str, None]
+    pay: Union[int, None]
+    game_time_hh: Union[bool, None]
+
+    class Config:
+        orm_mode = True
+
+
+
+class ApplicationInf(ApplicationCreate):
+    id: int
+    user_id: Union[int, None]
+
+
+class ApplicationModel(BaseModel):
+    requests: List[ApplicationInf]
 
 
 class DoublesScoresSchemas(BaseModel):
@@ -35,6 +69,7 @@ class DoublesScoresSchemas(BaseModel):
         orm_mode = True
 
 
+
 class DoublesScoresCreate(DoublesScoresSchemas):
     f_two_id: Union[int, None]
     s_one_id: Union[int, None]
@@ -42,6 +77,7 @@ class DoublesScoresCreate(DoublesScoresSchemas):
 
     class Config:
         orm_mode = True
+
 
 class DoublesScoresSchemasInf(DoublesScoresCreate):
     id: Union[int, None]
@@ -51,10 +87,8 @@ class DoublesScoresSchemasInf(DoublesScoresCreate):
         orm_mode = True
 
 
-
-
 class ScoresSchemasCreate(DoublesScoresSchemas):
-    s_id: Union[int, None] = 586080284
+    s_id: Union[int, None]
 
     class Config:
         orm_mode = True

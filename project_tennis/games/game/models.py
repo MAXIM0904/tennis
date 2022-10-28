@@ -1,7 +1,29 @@
-from sqlalchemy import Column, Boolean, Integer, TIMESTAMP, ForeignKey, BIGINT
+from sqlalchemy import Column, Boolean, Integer, TIMESTAMP, ForeignKey, BIGINT, String, Date
 from sql_app.db import Base
 from datetime import datetime
 
+
+class GameOrders(Base):
+    __tablename__ = 'game_orders'
+
+    id = Column(Integer, primary_key=True, index=True, unique=True)
+    user_id = Column(Integer, ForeignKey("players.id", ondelete='CASCADE'), autoincrement=False, nullable=True)
+    loc_szao = Column(Boolean, autoincrement=False, nullable=True)
+    loc_sao = Column(Boolean, autoincrement=False, nullable=True)
+    loc_svao = Column(Boolean, autoincrement=False, nullable=True)
+    loc_zao = Column(Boolean, autoincrement=False, nullable=True)
+    loc_cao = Column(Boolean, autoincrement=False, nullable=True)
+    loc_vao = Column(Boolean, autoincrement=False, nullable=True)
+    loc_uzao = Column(Boolean, autoincrement=False, nullable=True)
+    loc_uao = Column(Boolean, autoincrement=False, nullable=True)
+    loc_uvao = Column(Boolean, autoincrement=False, nullable=True)
+    game_type = Column(Integer, autoincrement=False, nullable=False)
+    game_date = Column(Date, autoincrement=False, nullable=True)
+    game_time = Column(Integer, autoincrement=False, nullable=True)
+    duration = Column(Integer, autoincrement=False, nullable=True)
+    tennis_site = Column(String(255), autoincrement=False, nullable=True)
+    pay = Column(Integer, autoincrement=False, nullable=False)
+    game_time_hh = Column(Boolean, autoincrement=False, nullable=True)
 
 class DoublesScores(Base):
     __tablename__ = 'doubles_scores'
@@ -36,13 +58,6 @@ class DoublesScores(Base):
     fifth_set_tie_s = Column(Integer, autoincrement=False, nullable=True)
     sets = Column(Integer, autoincrement=False, nullable=True)
 
-
-    # connection_f_one_id = relationship("Players", foreign_keys='connection_doubles_scores')
-    # connection_f_two_id = relationship("Players", foreign_keys='DoublesScores.f_two_id')
-    # connection_s_one_id = relationship("Players", foreign_keys='DoublesScores.s_one_id')
-    # connection_s_two_id = relationship("Players", foreign_keys='DoublesScores.s_two_id')
-
-
 class Scores(Base):
     __tablename__ = 'scores'
 
@@ -73,5 +88,3 @@ class Scores(Base):
     fifth_set_tie_f = Column(Integer, autoincrement=False, nullable=True)
     fifth_set_tie_s = Column(Integer, autoincrement=False, nullable=True)
     sets = Column(Integer, autoincrement=False, nullable=True)
-
-    # connection_f_id = relationship("Players", back_populates="connection_scores")

@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from profile.routers import router
-from games.application.routers import application
-from games.scores.routers import scores
+from games.game.routers import game
 
 
 app = FastAPI()
@@ -9,23 +8,15 @@ app = FastAPI()
 
 app.include_router(
     router,
-    prefix="/profile",
-    tags=["profile"],
+    prefix="/user",
+    tags=["user"],
     responses={418: {"description": "Teapot"}},
 )
 
 
 app.include_router(
-    application,
-    prefix="/application",
-    tags=["application"],
-    responses={418: {"description": "Teapot"}},
-)
-
-
-app.include_router(
-    scores,
-    prefix="/scores",
-    tags=["scores"],
+    game,
+    prefix="/game",
+    tags=["game"],
     responses={418: {"description": "Teapot"}},
 )

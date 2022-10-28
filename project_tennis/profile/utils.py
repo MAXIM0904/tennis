@@ -1,4 +1,3 @@
-
 def user_update(update_data, current_user):
     if update_data.get('name') is not None:
         current_user.name = update_data['name']

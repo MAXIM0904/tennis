@@ -51,8 +51,6 @@ async def confirmcode(sms_message: SmsCode, db: Session = Depends(get_db)):
     user = authentication.get_user_id(db=db, user_id=str(sms_message.id))
     if not user["success"]:
         return JSONResponse(user)
-    print('89')
-    print(user)
     #первичная регистрация
     if sms_message.password is None and sms_message.verification_password is None:
         access_token = authentication.create_access_token(data={"sub": str(user["message"].id)})
@@ -82,14 +80,11 @@ async def confirmcode(sms_message: SmsCode, db: Session = Depends(get_db)):
 @router.post("/auth", response_model=Token)
 async def login_for_access_token(form_data: ProfileAuth, db: Session = Depends(get_db)):
     """ Авторизация существующего пользователя """
-    print('897897')
     user = authentication.authenticate_user(db=db, phone=form_data.phone, password=form_data.password)
-    print(user)
     if not user["success"]:
         return JSONResponse(user)
     access_token = authentication.create_access_token(
         data={"sub": str(user["message"].id)})
-    print(access_token)
     return Token(data={
             "userId": user["message"].id,
             "token": access_token
@@ -108,7 +103,6 @@ async def users_update(user_update: ProfileUpdate,
                        current_user: Players = Depends(authentication.get_current_user),
                        db: Session = Depends(get_db)):
     """ Изменение данных пользователя"""
-    print('89089')
     update_data = user_update.dict(exclude_unset=True)
     update_user = utils.user_update(update_data=update_data, current_user=current_user["message"])
     db.add(update_user)

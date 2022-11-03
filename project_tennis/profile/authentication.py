@@ -1,3 +1,4 @@
+import os
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -9,8 +10,8 @@ from fastapi import Depends, HTTPException, status
 from sql_app.db import get_db
 
 
-SECRET_KEY = "e1a8efd89ac2e4851e6136516fa8d532dca201013e7857bbc44defd49235025f"
-ALGORITHM = "HS256"
+SECRET_KEY = os.environ.get("KEY_DATABASE_URL")
+ALGORITHM = os.environ.get("TOKEN_ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = 900000
 
 

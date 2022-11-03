@@ -2,9 +2,9 @@ from fastapi import APIRouter
 from sqlalchemy.orm import Session
 from sql_app.db import get_db
 from fastapi import Depends
-from . import schema
+from games import schema
 from profile import authentication
-from .models import GameOrders, DoublesScores, Scores
+from games.models import GameOrders, DoublesScores, Scores
 from fastapi.responses import JSONResponse
 
 
@@ -37,6 +37,7 @@ async def application_create(application_create: schema.ApplicationCreate,
         "success": True,
         "message": "Ваша заявка успешно принята"
     })
+
 
 @game.post("/matches/doubles_create", response_model=schema.DoublesScoresSchemasInf)
 async def doubles_scores_create(

@@ -95,7 +95,7 @@ async def login_for_access_token(form_data: ProfileAuth, db: Session = Depends(g
 async def read_users_me(userId: int, current_user: Players = Depends(authentication.get_current_user)):
     """ Получить информацию о пользователе для ЛК """
     schema_profile = ProfilenModel(data=current_user['message'])
-    return (schema_profile)
+    return schema_profile
 
 
 @router.post("/{userId}/edit/personalInfo", response_model=ProfileUnf)

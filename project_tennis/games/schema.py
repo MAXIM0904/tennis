@@ -38,6 +38,8 @@ class ApplicationModel(BaseModel):
     requests: List[ApplicationInf]
 
 
+
+
 class DoublesScoresSchemas(BaseModel):
 
     match_won: Union[bool, None] = True
@@ -79,6 +81,10 @@ class DoublesScoresCreate(DoublesScoresSchemas):
         orm_mode = True
 
 
+class SchemaDoublesScores(BaseModel):
+    requests: DoublesScoresCreate
+
+
 class DoublesScoresSchemasInf(DoublesScoresCreate):
     id: Union[int, None]
     f_one_id: Union[int, None]
@@ -100,3 +106,6 @@ class ScoresSchemasInf(ScoresSchemasCreate):
 
     class Config:
         orm_mode = True
+
+class SchemaScores(BaseModel):
+    requests: ScoresSchemasInf

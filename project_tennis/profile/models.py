@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, Float
-from sqlalchemy.orm import relationship
 from sql_app.db import Base
 from datetime import datetime
 
@@ -35,7 +34,11 @@ class Players(Base):
     offline_tournament_id = Column(Integer, nullable=True)
     password = Column(String(100), autoincrement=False, nullable=True)
 
-    # connection_game_orders = relationship("GameOrders", back_populates="connection_user_id")
-    # connection_doubles_scores = relationship("DoublesScores", back_populates="connection_f_one_id")
 
-    # connection_scores = relationship("Scores", back_populates="connection_f_id")
+class ConfirmationCodes(Base):
+    __tablename__ = 'confirmation_codes'
+
+    id = Column(Integer, primary_key=True, autoincrement=True, unique=True, nullable=False)
+    phone = Column(Integer, autoincrement=False, nullable=False)
+    time = Column(DateTime,  autoincrement=False, nullable=True, default=datetime.utcnow())
+    code = Column(Integer, autoincrement=False, nullable=False)

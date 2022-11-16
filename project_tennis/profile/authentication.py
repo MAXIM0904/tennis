@@ -26,54 +26,32 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def get_user(db, phone: int):
+def get_user_phone(db, phone: str):
     """ Функция поиска пользователя по номеру телефона """
     user_profile = db.query(Players).filter(Players.phone == phone).first()
     if user_profile:
-        return {
-            "success": True,
-            "message": user_profile,
-        }
-
+        return user_profile
     else:
-        return {
-            "success": False,
-            "message": "Пользователя с таким логином не существует",
-        }
+        return False
 
 #аутентификация по токену
 def get_user_id(db, user_id: str):
     """ Функция поиска пользователя по id """
     user_profile = db.query(Players).get(user_id)
     if user_profile:
-        return {
-            "success": True,
-            "message": user_profile,
-        }
+        return user_profile
     else:
-        return {
-            "success": False,
-            "message": "Пользователя с таким логином не существует",
-        }
+        return False
 
 
 def authenticate_user(db, phone: int, password: str):
     """ Аутентификация пользователя по номеру телефона и паролю """
-    user = get_user(db, phone)
+    user = get_user_phone(db, phone)
     if not user:
-        return {
-            "success": False,
-            "message": "Пользователя с таким логином не существует",
-        }
-    if not verify_password(password, user["message"].password):
-        return {
-            "success": False,
-            "message": "Пароль введен неверно"
-        }
-    return {
-            "success": True,
-            "message": user["message"]
-        }
+        return "Пользователя с таким логином не существует"
+    if not verify_password(password, user.password):
+        return "Пароль введен неверно"
+    return user
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):

@@ -20,3 +20,14 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def create_bd(db, db_profile):
+    db.add(db_profile)
+    db.commit()
+    db.refresh(db_profile)
+
+
+def delete_bd(db, db_profile):
+    db.delete(db_profile)
+    db.commit()

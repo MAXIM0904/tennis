@@ -1,3 +1,12 @@
+from random import randint
+from .models import ConfirmationCodes
+from . import schema
+from . import authentication
+
+def random_code():
+    return randint(1000, 9999)
+
+
 def user_update(update_data, current_user):
     if update_data.get('name') is not None:
         current_user.name = update_data['name']
@@ -48,3 +57,54 @@ def user_update(update_data, current_user):
     if update_data.get('offline_tournament_id') is not None:
         current_user.offline_tournament_id = update_data['offline_tournament_id']
     return current_user
+
+
+def get_confirmation(db, phone: int):
+    """ Функция поиска пользователя по номеру телефона в таблице ConfirmationCodes"""
+    confirmation = db.query(ConfirmationCodes).filter(ConfirmationCodes.phone == phone).first()
+    if confirmation:
+        return confirmation
+    else:
+        return False
+
+
+def confirmation_controll(db, phone_dict: dict):
+    """
+    Функция контролирует наличие одинаковых записей в таблице ConfirmationCodes.
+    При наличии повторов перезаписывается код верификации (code)
+    """
+    db_profile = get_confirmation(db=db, phone=phone_dict['phone'])
+    if not db_profile:
+        db_profile = ConfirmationCodes(**phone_dict)
+    else:
+        db_profile.code = phone_dict['code']
+
+    return db_profile
+
+
+def answer_user_data(success: bool, message: str, data: dict):
+    """ Функция генерации ответа пользователю c data """
+    answer = schema.PositiveResponseModel(
+        success=success,
+        message=message,
+        data=data
+    )
+    return answer
+
+
+def answer_user(success: bool, message: str):
+    """ Функция генерации ответа пользователю без data """
+    answer = schema.ErrorResponseModel(
+        success=success,
+        message=message
+    )
+    return answer
+
+
+def preparing_profile_recording(profile):
+    """ Функция подготовки информации о пользователе к записи в базу данных"""
+    profile = profile.dict()
+    del profile['code']
+    hash_password = authentication.get_password_hash(password=profile['password'])
+    profile['password'] = hash_password
+    return profile

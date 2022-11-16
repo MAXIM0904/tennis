@@ -5,7 +5,6 @@ from fastapi import Depends
 from games import schema
 from profile import authentication
 from games.models import GameOrders, DoublesScores, Scores
-from fastapi.responses import JSONResponse
 from profile import utils
 from profile.models import Players
 from sql_app.db import create_bd

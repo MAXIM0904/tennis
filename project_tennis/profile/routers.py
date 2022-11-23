@@ -105,16 +105,19 @@ async def login_for_access_token(form_data: schema.ProfileAuth, db: Session = De
 @router.get("/profile")
 async def read_users_me(current_user: Players = Depends(authentication.get_current_user)):
     """ Получить информацию о пользователе для ЛК """
-    schema_profile = schema.ProfileUnf(**current_user.__dict__)
-    answer = utils.answer_user_data(True, "", schema_profile.dict())
+    schema_profile = schema.ProfileUnf(**current_user.__dict__).dict()
+    utils.add_avatar(schema_profile)
+    answer = utils.answer_user_data(True, "", schema_profile)
     return answer
 
 
-@router.get("/", response_model=schema.ProfileResponseModel)
+@router.get("/")
 async def all_users(current_user: dict = Depends(authentication.get_current_user), db: Session = Depends(get_db)):
     """ Функция возвращает всех пользователей """
     user_profile = db.query(Players).all()
-    return schema.ProfileResponseModel(success=True, message="", data=user_profile)
+    schema_profile = schema.ProfileResponseModel(success=True, message="", data=user_profile).dict()
+    utils.add_avatar(schema_profile)
+    return schema_profile
 
 
 @router.get("/{user_id}")
@@ -125,8 +128,9 @@ async def users_user(user_id: int,
 
     user_profile = authentication.get_user_id(db=db, user_id=str(user_id))
     if user_profile:
-        schema_profile = schema.ProfileUnf(**current_user.__dict__)
-        answer = utils.answer_user_data(True, "", schema_profile.dict())
+        schema_profile = schema.ProfileUnf(**current_user.__dict__).dict()
+        utils.add_avatar(schema_profile)
+        answer = utils.answer_user_data(True, "", schema_profile)
         return answer
 
     answer = utils.answer_user(False, "Пользователь не найден")

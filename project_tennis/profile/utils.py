@@ -1,3 +1,4 @@
+import os
 from random import randint
 from .models import ConfirmationCodes
 from . import schema
@@ -108,3 +109,19 @@ def preparing_profile_recording(profile):
     hash_password = authentication.get_password_hash(password=profile['password'])
     profile['password'] = hash_password
     return profile
+
+
+def add_avatar(schema_profile):
+    """ Функция добавления ссыдок на картинки """
+    if schema_profile.get('data'):
+        print('98790')
+        print(schema_profile)
+        for i_schema_profile in schema_profile['data']:
+            if os.path.exists(f"media/{i_schema_profile['id']}/userPhoto/{i_schema_profile['id']}.jpg"):
+                i_schema_profile['photo'] = f"media/{i_schema_profile['id']}/userPhoto/{i_schema_profile['id']}.jpg"
+
+    else:
+        if os.path.exists(f"media/{schema_profile['id']}/userPhoto/{schema_profile['id']}.jpg"):
+            schema_profile['photo'] = f"media/{schema_profile['id']}/userPhoto/{schema_profile['id']}.jpg"
+
+    return schema_profile

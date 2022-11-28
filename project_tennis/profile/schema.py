@@ -1,13 +1,6 @@
 from pydantic import BaseModel
 from typing import Union, List
-from time import time
 from datetime import datetime
-
-
-def random_int_time():
-    """Временная функция генерации ID для таблицы Players"""
-    id = int(time() * 100000)
-    return int(id)
 
 
 class ErrorResponseModel(BaseModel):
@@ -28,7 +21,7 @@ class PasswordCreate(BaseModel):
 
 
 class ProfileCreate(PasswordCreate, SchemaPhone):
-    id: int = random_int_time()
+    id: int = 1
     name: str = 'xx1x'
     initial_rating: int = 0
     is_male: bool = True # Пол по умолчанию не задан и не спрашивается при регистрации. Может None пока?

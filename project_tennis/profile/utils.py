@@ -4,7 +4,22 @@ from .models import ConfirmationCodes
 from . import schema
 from . import authentication
 
+#временная функция
+from .models import Players
+
+
+def profile_id(db, profile):
+    """ Временная функция генерации id Players"""
+    while True:
+        id_user = randint(7000000000, 99999999999999)
+        user = db.query(Players).get(id_user)
+        if not user:
+            profile['id'] = id_user
+            return profile
+
+
 def random_code():
+    """Функция генерации проверочного кода"""
     return randint(1000, 9999)
 
 
@@ -114,8 +129,6 @@ def preparing_profile_recording(profile):
 def add_avatar(schema_profile):
     """ Функция добавления ссыдок на картинки """
     if schema_profile.get('data'):
-        print('98790')
-        print(schema_profile)
         for i_schema_profile in schema_profile['data']:
             if os.path.exists(f"media/{i_schema_profile['id']}/userPhoto/{i_schema_profile['id']}.jpg"):
                 i_schema_profile['photo'] = f"media/{i_schema_profile['id']}/userPhoto/{i_schema_profile['id']}.jpg"

@@ -35,6 +35,10 @@ async def confirmcode(profile: schema.ProfileCreate, db: Session = Depends(get_d
     if user:
         if user.code == profile.code:
             profile = utils.preparing_profile_recording(profile=profile)
+
+            #временная функция генерации id
+            profile = utils.profile_id(db, profile)
+
             db_profile = Players(**profile)
             create_bd(db=db, db_profile=db_profile)
 
@@ -69,7 +73,7 @@ async def password_recovery(number_phone: schema.SchemaPhone, db: Session = Depe
 
 @router.post("/change_password")
 async def change_password(profile: schema.ProfileCreate, db: Session = Depends(get_db)):
-    """ Функция проверки ввода кода верификации и регистрации пользователя """
+    """ Функция проверки ввода кода верификации при изменении пароля """
     user = utils.get_confirmation(db, profile.phone)
     if user:
         if user.code == profile.code:

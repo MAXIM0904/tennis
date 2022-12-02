@@ -16,6 +16,16 @@ async def registration_code(number_phone: schema.SchemaPhone, db: Session = Depe
     """ Функция направления кода верификации при регистрации """
     number_phone = number_phone.dict()
     user = authentication.get_user_phone(db=db, phone=number_phone['phone'])
+
+    #тестовая функция
+    if user.phone == 79150000000:
+        answer = utils.answer_user_data(True, "Код отправлен", {
+            "phone": 79150000000,
+            "code": 1111
+        })
+        return answer
+
+
     if not user:
         code = utils.random_code()
         number_phone['code'] = code
@@ -32,6 +42,16 @@ async def registration_code(number_phone: schema.SchemaPhone, db: Session = Depe
 async def confirmcode(profile: schema.ProfileCreate, db: Session = Depends(get_db)):
     """ Функция проверки ввода кода верификации и регистрации пользователя """
     user = utils.get_confirmation(db, profile.phone)
+
+    #тестовый пользователь
+    if profile.phone == 79150000000 and profile.code == 1111:
+        user = authentication.get_user_phone(db=db, phone=str(profile.phone))
+        password_hash = authentication.get_password_hash(password=profile.password)
+        user.password = password_hash
+        create_bd(db=db, db_profile=user)
+        answer = utils.answer_user(True, "Данные успешно сохранены")
+        return answer
+
     if user:
         if user.code == profile.code:
             profile = utils.preparing_profile_recording(profile=profile)
@@ -131,8 +151,9 @@ async def users_user(user_id: int,
     """ Функция возвращает пользователя по id """
 
     user_profile = authentication.get_user_id(db=db, user_id=str(user_id))
+
     if user_profile:
-        schema_profile = schema.ProfileUnf(**current_user.__dict__).dict()
+        schema_profile = schema.ProfileUnf(**user_profile.__dict__).dict()
         utils.add_avatar(schema_profile)
         answer = utils.answer_user_data(True, "", schema_profile)
         return answer

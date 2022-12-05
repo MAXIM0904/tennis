@@ -17,21 +17,20 @@ async def registration_code(number_phone: schema.SchemaPhone, db: Session = Depe
     number_phone = number_phone.dict()
     user = authentication.get_user_phone(db=db, phone=number_phone['phone'])
 
-    #тестовая функция
-    if user.phone == 79150000000:
-        answer = utils.answer_user_data(True, "Код отправлен", {
-            "phone": 79150000000,
-            "code": 1111
-        })
-        return answer
-
-
     if not user:
         code = utils.random_code()
         number_phone['code'] = code
         db_profile = utils.confirmation_controll(db=db, phone_dict=number_phone)
         create_bd(db=db, db_profile=db_profile)
         answer = utils.answer_user_data(True, "Код отправлен", number_phone)
+        return answer
+
+    #тестовая функция
+    if user.phone == 79150000000:
+        answer = utils.answer_user_data(True, "Код отправлен", {
+            "phone": 79150000000,
+            "code": 1111
+        })
         return answer
 
     answer = utils.answer_user(False, "Пользователь с данным номер телефона уже зарегистрирован. Войдите в аккаунт")
@@ -43,16 +42,20 @@ async def confirmcode(profile: schema.ProfileCreate, db: Session = Depends(get_d
     """ Функция проверки ввода кода верификации и регистрации пользователя """
     user = utils.get_confirmation(db, profile.phone)
 
-    #тестовый пользователь
+    # тестовый пользователь
     if profile.phone == 79150000000 and profile.code == 1111:
         user = authentication.get_user_phone(db=db, phone=str(profile.phone))
         password_hash = authentication.get_password_hash(password=profile.password)
         user.password = password_hash
         create_bd(db=db, db_profile=user)
-        answer = utils.answer_user(True, "Данные успешно сохранены")
+        access_token = authentication.create_access_token(data={"sub": str(user.id)})
+        token = schema.Token(id=user.id, token=access_token).dict()
+        answer = utils.answer_user_data(True, "Код введен верно", token)
         return answer
 
+
     if user:
+
         if user.code == profile.code:
             profile = utils.preparing_profile_recording(profile=profile)
 

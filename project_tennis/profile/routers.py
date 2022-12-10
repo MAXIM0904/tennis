@@ -53,9 +53,7 @@ async def confirmcode(profile: schema.ProfileCreate, db: Session = Depends(get_d
         answer = utils.answer_user_data(True, "Код введен верно", token)
         return answer
 
-
     if user:
-
         if user.code == profile.code:
             profile = utils.preparing_profile_recording(profile=profile)
 
@@ -64,7 +62,6 @@ async def confirmcode(profile: schema.ProfileCreate, db: Session = Depends(get_d
 
             db_profile = Players(**profile)
             create_bd(db=db, db_profile=db_profile)
-
             access_token = authentication.create_access_token(data={"sub": str(db_profile.id)})
             token = schema.Token(id=db_profile.id, token=access_token).dict()
             answer = utils.answer_user_data(True, "Код введен верно", token)
@@ -130,21 +127,44 @@ async def login_for_access_token(form_data: schema.ProfileAuth, db: Session = De
 
 
 @router.get("/profile")
-async def read_users_me(current_user: Players = Depends(authentication.get_current_user)):
+async def read_users_me(current_user: Players = Depends(authentication.get_current_user), db: Session = Depends(get_db)):
     """ Получить информацию о пользователе для ЛК """
-    schema_profile = schema.ProfileUnf(**current_user.__dict__).dict()
-    utils.add_avatar(schema_profile)
-    answer = utils.answer_user_data(True, "", schema_profile)
+    preparing_response = utils.preparing_user_profile(current_user, db)
+    utils.add_avatar(preparing_response)
+    answer = utils.answer_user_data(True, "", preparing_response)
     return answer
 
 
 @router.get("/")
-async def all_users(current_user: dict = Depends(authentication.get_current_user), db: Session = Depends(get_db)):
+async def all_users(
+        cityId: int = None,
+        districtId: int = None,
+        isMale: bool = None,
+        current_user: dict = Depends(authentication.get_current_user),
+        db: Session = Depends(get_db)
+):
     """ Функция возвращает всех пользователей """
-    user_profile = db.query(Players).all()
-    schema_profile = schema.ProfileResponseModel(success=True, message="", data=user_profile).dict()
-    utils.add_avatar(schema_profile)
-    return schema_profile
+    user_list = []
+
+    if isMale:
+        user_profile = db.query(Players).filter(Players.is_male == isMale).all()
+
+    if cityId:
+        user_profile = db.query(Players).filter(Players.city_id == cityId).all()
+
+    if districtId:
+        user_profile = db.query(Players).filter(Players.district_id == districtId).all()
+
+    if isMale is None and districtId is None and cityId is None:
+        user_profile = db.query(Players).all()
+
+    for i_user_profile in user_profile:
+        if i_user_profile.id != current_user.id:
+            schema_profile = utils.preparing_user_profile(i_user_profile, db)
+            utils.add_avatar(schema_profile)
+            user_list.append(schema_profile)
+    answer = utils.answer_user_data(True, "", user_list)
+    return answer
 
 
 @router.get("/{user_id}")
@@ -154,9 +174,8 @@ async def users_user(user_id: int,
     """ Функция возвращает пользователя по id """
 
     user_profile = authentication.get_user_id(db=db, user_id=str(user_id))
-
     if user_profile:
-        schema_profile = schema.ProfileUnf(**user_profile.__dict__).dict()
+        schema_profile = utils.preparing_user_profile(user_profile, db)
         utils.add_avatar(schema_profile)
         answer = utils.answer_user_data(True, "", schema_profile)
         return answer
@@ -170,8 +189,12 @@ async def users_update(user_update:schema.ProfileUpdate,
                        current_user: Players = Depends(authentication.get_current_user),
                        db: Session = Depends(get_db)):
     """ Изменение данных пользователя"""
+
     update_data = user_update.dict(exclude_unset=True)
     update_user = utils.user_update(update_data=update_data, current_user=current_user)
     create_bd(db=db, db_profile=update_user)
-    answer = utils.answer_user(True, "Данные успешно сохранены")
+
+    preparing_response = utils.preparing_user_profile(current_user, db)
+    utils.add_avatar(preparing_response)
+    answer = utils.answer_user_data(True, "", preparing_response)
     return answer

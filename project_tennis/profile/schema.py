@@ -9,7 +9,7 @@ class ErrorResponseModel(BaseModel):
 
 
 class PositiveResponseModel(ErrorResponseModel):
-    data: dict
+    data: dict|list
 
 
 class SchemaPhone(BaseModel):
@@ -45,37 +45,27 @@ class ProfileAuth(SchemaPhone, PasswordCreate):
 
 
 class ProfileUpdate(BaseModel):
-    name: Union[str, None]
+    firstName: Union[str, None]
+    lastName: Union[str, None]
     phone: Union[int, None]
-    initial_rating: Union[float, None]
+    username: Union[str, None] #вместо telegram(завявано на бота)
+    cityId: Union[int, None]
+    districtId: Union[int, None]
+    birthDate: Union[int, None] # в базе Date
     is_male: Union[bool, None]
-    experience: Union[int, None] # num от 1 до 4, новичок, любитель, продвинутый, Мастерс
-    secondary_location: Union[int, None]
-    primary_location: Union[int, None]
-    is_full_reg: Union[bool, None]
-    rating: Union[float, None]
-    is_bot_blocked: Union[bool, None]
-    username: Union[str, None]
-    doubles_rating: Union[float, None]
-    mixed_rating: Union[float, None]
-    city_id: Union[int, None]
-    referral: Union[int, None]
-    referral_other: Union[str, None]
-    racquet: Union[int, None]
-    racquet_detail: Union[str, None]
-    global_notification: Union[bool, None]
-    tournament_id: Union[int, None]
-    corporation: Union[int, None]
-    play_tennis_id: Union[str, None]
-    city_other: Union[str, None]
-    offline_tournament_id: Union[int, None]
-    status: Union[int, None]
-    photo: Union[str, None]
+    gameStyle: Union[str, None]
+    isRightHand: Union[bool, None]
+    isOneBackhand: Union[bool, None]
+    ground: Union[str, None]
+    shoesName: Union[str, None]
+    racquetId: Union[list[int], None]
+    stringsId: Union[list[int], None]
+    urlPredefinedAvatar: Union[str, None]
 
 
 class ProfileUnf(ProfileUpdate):
     id: int
-    registered_at: Union[datetime, None]
+    countryId: str
 
     class Config:
         orm_mode = True

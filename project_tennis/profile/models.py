@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, Float
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, Float, Date
 from sql_app.db import Base
 from datetime import datetime
 
@@ -33,6 +33,15 @@ class Players(Base):
     city_other = Column(Text, autoincrement=False, nullable=True)
     offline_tournament_id = Column(Integer, nullable=True)
     password = Column(String(100), autoincrement=False, nullable=True)
+    status = Column(Integer, autoincrement=False, nullable=True, default=1)
+    district_id = Column(Integer, autoincrement=False, nullable=True)
+    birth_date = Column(Date, autoincrement=False, nullable=True)
+    game_style = Column(Text, autoincrement=False, nullable=True)
+    is_right_hand = Column(Boolean, autoincrement=False, nullable=True)
+    is_one_backhand = Column(Boolean, autoincrement=False, nullable=True)
+    ground = Column(Text, autoincrement=False, nullable=True)
+    shoes_name = Column(Text, autoincrement=False, nullable=True)
+    strings_id = Column(Integer, autoincrement=False, nullable=True)
 
 
 class ConfirmationCodes(Base):

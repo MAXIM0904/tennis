@@ -33,5 +33,5 @@ async def users_user(current_user: Players = Depends(authentication.get_current_
                      db: Session = Depends(get_db)):
     """ Функция возвращает рейтинг игрока после прохождения теста. ПОКА ЗАГЛУШКА Т.К. нет СВЯЗИ С БОТОМ """
 
-    answer = utils.answer_user_data(True, "Теперь вы можете найти партнера для игры", {"rating": "1234 BTRP"})
+    answer = utils.answer_user_data(True, "Теперь вы можете найти партнера для игры", {"rating": "1234"})
     return answer

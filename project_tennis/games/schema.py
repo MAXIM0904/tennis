@@ -28,7 +28,6 @@ class ApplicationCreate(BaseModel):
         orm_mode = True
 
 
-
 class ApplicationInf(ApplicationCreate):
     id: int
     user_id: Union[int, None]
@@ -36,8 +35,6 @@ class ApplicationInf(ApplicationCreate):
 
 class ApplicationModel(BaseModel):
     requests: List[ApplicationInf]
-
-
 
 
 class DoublesScoresSchemas(BaseModel):
@@ -69,7 +66,6 @@ class DoublesScoresSchemas(BaseModel):
 
     class Config:
         orm_mode = True
-
 
 
 class DoublesScoresCreate(DoublesScoresSchemas):
@@ -106,6 +102,7 @@ class ScoresSchemasInf(ScoresSchemasCreate):
 
     class Config:
         orm_mode = True
+
 
 class SchemaScores(BaseModel):
     requests: ScoresSchemasInf

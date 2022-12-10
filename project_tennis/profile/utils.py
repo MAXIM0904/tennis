@@ -3,6 +3,13 @@ from random import randint
 from .models import ConfirmationCodes
 from . import schema
 from . import authentication
+import time
+import datetime
+from geo.models import Cities, District, Countries
+from geo.schema import SchemaCountry, SchemaDistrict
+from inventory.models import Racquet, Strings
+from inventory.schema import SchemaInventory
+
 
 #временная функция
 from .models import Players
@@ -24,54 +31,55 @@ def random_code():
 
 
 def user_update(update_data, current_user):
-    if update_data.get('name') is not None:
-        current_user.name = update_data['name']
+    if update_data.get('lastName') is not None or update_data.get('firstName') is not None:
+        if update_data.get('lastName') is not None and update_data.get('firstName') is not None:
+            current_user.name = f"{update_data['lastName']} {update_data['firstName']}"
+
+        elif update_data.get('lastName') is not None:
+            name = current_user.name.split()
+            if len(name) <= 0:
+                name.append(update_data['lastName'])
+            else:
+                name[0] = update_data['lastName']
+        else:
+            name = current_user.name.split()
+            if len(name) <= 1:
+                name.append(update_data['firstName'])
+            else:
+                name[1] = update_data['firstName']
+
+            current_user.name = str(" ".join(name))
+
     if update_data.get('phone') is not None:
         current_user.phone = update_data['phone']
-    if update_data.get('initial_rating') is not None:
-        current_user.initial_rating = update_data['initial_rating']
-    if update_data.get('is_male') is not None:
-        current_user.is_male = update_data['is_male']
-    if update_data.get('experience') is not None:
-        current_user.experience = update_data['experience']
-    if update_data.get('secondary_location') is not None:
-        current_user.secondary_location = update_data['secondary_location']
-    if update_data.get('primary_location') is not None:
-        current_user.primary_location = update_data['primary_location']
-    if update_data.get('is_full_reg') is not None:
-        current_user.is_full_reg = update_data['is_full_reg']
-    if update_data.get('rating') is not None:
-        current_user.rating = update_data['rating']
-    if update_data.get('is_bot_blocked') is not None:
-        current_user.is_bot_blocked = update_data['is_bot_blocked']
     if update_data.get('username') is not None:
         current_user.username = update_data['username']
-    if update_data.get('doubles_rating') is not None:
-        current_user.doubles_rating = update_data['doubles_rating']
-    if update_data.get('mixed_rating') is not None:
-        current_user.mixed_rating = update_data['mixed_rating']
-    if update_data.get('city_id') is not None:
-        current_user.city_id = update_data['city_id']
-    if update_data.get('referral') is not None:
-        current_user.referral = update_data['referral']
-    if update_data.get('referral_other') is not None:
-        current_user.referral_other = update_data['referral_other']
-    if update_data.get('racquet') is not None:
-        current_user.racquet = update_data['racquet']
-    if update_data.get('racquet_detail') is not None:
-        current_user.racquet_detail = update_data['racquet_detail']
-    if update_data.get('global_notification') is not None:
-        current_user.global_notification = update_data['global_notification']
-    if update_data.get('tournament_id') is not None:
-        current_user.tournament_id = update_data['tournament_id']
-    if update_data.get('corporation') is not None:
-        current_user.corporation = update_data['corporation']
-    if update_data.get('play_tennis_id') is not None:
-        current_user.play_tennis_id = update_data['play_tennis_id']
-    if update_data.get('city_other') is not None:
-        current_user.city_other = update_data['city_other']
-    if update_data.get('offline_tournament_id') is not None:
-        current_user.offline_tournament_id = update_data['offline_tournament_id']
+    if update_data.get('cityId') is not None:
+        current_user.city_id = update_data['cityId']
+    if update_data.get('districtId') is not None:
+        current_user.district_id = update_data['districtId']
+    if update_data.get('birthDate') is not None:
+        current_user.birthDate = update_data['birthDate']
+    if update_data.get('is_male') is not None:
+        current_user.is_male = update_data['is_male']
+    if update_data.get('gameStyle') is not None:
+        current_user.game_style = update_data['gameStyle']
+    if update_data.get('isRightHand') is not None:
+        current_user.is_right_hand = update_data['isRightHand']
+    if update_data.get('isOneBackhand') is not None:
+        current_user.is_one_backhand = update_data['isOneBackhand']
+    if update_data.get('ground') is not None:
+        current_user.ground = update_data['ground']
+    if update_data.get('shoesName') is not None:
+        current_user.shoes_name = update_data['shoesName']
+    if update_data.get('racquetId') is not None:
+        current_user.racquet = update_data['racquetId'][0]
+    if update_data.get('stringsId') is not None:
+        current_user.strings_id = update_data['stringsId'][0]
+    if update_data.get('birthDate') is not None:
+        time_user = int(update_data['birthDate'])
+        time.strftime('%Y-%m-%d', time.localtime(time_user))
+        current_user.birth_date = time.strftime('%Y-%m-%d', time.localtime(time_user))
     return current_user
 
 
@@ -98,7 +106,7 @@ def confirmation_controll(db, phone_dict: dict):
     return db_profile
 
 
-def answer_user_data(success: bool, message: str, data: dict):
+def answer_user_data(success: bool, message: str, data: [dict|list]):
     """ Функция генерации ответа пользователю c data """
     answer = schema.PositiveResponseModel(
         success=success,
@@ -127,14 +135,70 @@ def preparing_profile_recording(profile):
 
 
 def add_avatar(schema_profile):
-    """ Функция добавления ссыдок на картинки """
+    """ Функция добавления ссылок на картинки """
     if schema_profile.get('data'):
         for i_schema_profile in schema_profile['data']:
             if os.path.exists(f"media/{i_schema_profile['id']}/userPhoto/{i_schema_profile['id']}.jpg"):
-                i_schema_profile['photo'] = f"media/{i_schema_profile['id']}/userPhoto/{i_schema_profile['id']}.jpg"
+                i_schema_profile['urlAvatar'] = f"media/{i_schema_profile['id']}/userPhoto/{i_schema_profile['id']}.jpg"
 
     else:
         if os.path.exists(f"media/{schema_profile['id']}/userPhoto/{schema_profile['id']}.jpg"):
-            schema_profile['photo'] = f"media/{schema_profile['id']}/userPhoto/{schema_profile['id']}.jpg"
+            schema_profile['urlAvatar'] = f"media/{schema_profile['id']}/userPhoto/{schema_profile['id']}.jpg"
 
     return schema_profile
+
+
+def preparing_user_profile(current_user, db):
+    """Функция формирует профиль пользователя для приложения """
+    name = current_user.name.split()
+    country_id = None
+    if len(name) <= 1:
+        name.append(None)
+
+    if current_user.birth_date:
+        time_birth = str(current_user.birth_date).split("-")
+        dt = datetime.datetime(int(time_birth[0]), int(time_birth[1]), int(time_birth[2]))
+        current_user.birth_date = int(dt.timestamp())
+
+    if current_user.city_id:
+        city = db.query(Cities).get(current_user.city_id)
+        current_user.city_id = SchemaCountry(**city.__dict__).dict()
+        country = db.query(Countries).get(city.country_id)
+        country_id = SchemaCountry(**country.__dict__).dict()
+
+    if current_user.district_id:
+        district = db.query(District).get(current_user.district_id)
+        current_user.district_id = SchemaDistrict(**district.__dict__).dict()
+
+    if current_user.racquet:
+        racquet = db.query(Racquet).get(current_user.racquet)
+        if racquet:
+            current_user.racquet = SchemaInventory(**racquet.__dict__).dict()
+        else:
+            current_user.racquet = None
+
+    if current_user.strings_id:
+        strings = db.query(Strings).get(current_user.strings_id)
+        current_user.racquet = SchemaInventory(**strings.__dict__).dict()
+
+
+    dict_answer = {
+        "id": current_user.id,
+        "firstName": name[0],
+        "lastName": name[1],
+        "phone": current_user.phone,
+        "username": current_user.username,
+        'countryId': country_id,
+        "cityId": current_user.city_id,
+        "districtId": current_user.district_id,
+        "birthDate": current_user.birth_date,
+        "is_male": current_user.is_male,
+        "gameStyle": current_user.game_style,
+        "isRightHand": current_user.is_right_hand,
+        "isOneBackhand": current_user.is_one_backhand,
+        "ground": current_user.ground,
+        "shoesName": current_user.shoes_name,
+        "racquetId": current_user.racquet,
+        "stringsId": current_user.racquet
+    }
+    return dict_answer

@@ -55,8 +55,8 @@ def user_update(update_data, current_user):
 
     if update_data.get('phone') is not None:
         current_user.phone = update_data['phone']
-    if update_data.get('username') is not None:
-        current_user.username = update_data['username']
+    if update_data.get('telegram') is not None:
+        current_user.username = update_data['telegram']
     if update_data.get('cityId') is not None:
         current_user.city_id = update_data['cityId']
     if update_data.get('districtId') is not None:
@@ -194,8 +194,8 @@ def preparing_user_profile(current_user, db, user_id=None):
         "firstName": name[0],
         "lastName": name[1],
         "phone": current_user.phone,
-        "username": current_user.username,
-        'country': country_id,
+        "telegram": current_user.username,
+        "country": country_id,
         "city": current_user.city_id,
         "district": current_user.district_id,
         "birthDate": current_user.birth_date,
@@ -223,3 +223,23 @@ def preparing_user_profile(current_user, db, user_id=None):
         dict_answer['isFavorite'] = is_favorite
 
     return dict_answer
+
+
+def create_bot_user(db, profile):
+    """ Вспомогательная функция для быстрого добавления в базу данных пользователей """
+    from sql_app.db import create_bd
+
+    for i in range(150):
+        #добавить пользователя в базу данных
+        # profile['name'] = f"testuser{i}"
+        # profile['phone'] += 1
+        # profile['id'] += 1
+        # db_profile = Players(**profile)
+        # create_bd(db=db, db_profile=db_profile)
+
+        #добавить поле
+        name = f"testuser{i}"
+        user_profile = db.query(Players).filter(Players.name == name).first()
+        if user_profile:
+            user_profile.username = f"@Vova1970.{i}"
+        create_bd(db=db, db_profile=user_profile)

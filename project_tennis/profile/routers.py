@@ -60,7 +60,6 @@ async def confirmcode(profile: schema.ProfileCreate, db: Session = Depends(get_d
 
             #временная функция генерации id
             profile = utils.profile_id(db, profile)
-
             db_profile = Players(**profile)
             create_bd(db=db, db_profile=db_profile)
             access_token = authentication.create_access_token(data={"sub": str(db_profile.id)})

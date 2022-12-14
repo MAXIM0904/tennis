@@ -52,6 +52,7 @@ class ShemaAnotherPlayer(BaseModel):
     power: float
     isMale: bool
     countOfMatches: int
+    telegram: Union[str, None]
     urlAvatar: Union[str, None]
     country: Union[dict, None]
     city: Union[dict, None]
@@ -63,7 +64,7 @@ class ProfileUpdate(BaseModel):
     firstName: Union[str, None]
     lastName: Union[str, None]
     phone: Union[int, None]
-    username: Union[str, None] #вместо telegram(завявано на бота)
+    telegram: Union[str, None] #вместо telegram(завявано на бота)
     cityId: Union[int, None]
     districtId: Union[int, None]
     birthDate: Union[int, None] # в базе Date

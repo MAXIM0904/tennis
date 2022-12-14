@@ -51,3 +51,11 @@ class ConfirmationCodes(Base):
     phone = Column(Integer, autoincrement=False, nullable=False)
     time = Column(DateTime,  autoincrement=False, nullable=True, default=datetime.utcnow())
     code = Column(Integer, autoincrement=False, nullable=False)
+
+
+class Favorite(Base):
+    __tablename__ = 'favorite'
+
+    id = Column(Integer, primary_key=True, autoincrement=True, unique=True, nullable=False)
+    id_user = Column(Integer, autoincrement=False, nullable=False)
+    id_favorite = Column(Integer, autoincrement=False, nullable=False)

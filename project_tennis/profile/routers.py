@@ -3,9 +3,10 @@ from sqlalchemy.orm import Session
 from . import schema
 from fastapi import Depends
 from sql_app.db import get_db, create_bd, delete_bd
-from .models import Players
+from .models import Players, Favorite
 from . import authentication
 from . import utils
+from sqlalchemy import and_
 
 
 router = APIRouter()
@@ -137,31 +138,40 @@ async def read_users_me(current_user: Players = Depends(authentication.get_curre
 
 @router.get("/")
 async def all_users(
+        page: int = 1,
         cityId: int = None,
-        districtId: int = None,
-        isMale: bool = None,
+        power: float = None,
+        name: str = None,
         current_user: dict = Depends(authentication.get_current_user),
         db: Session = Depends(get_db)
 ):
     """ Функция возвращает всех пользователей """
     user_list = []
+    limit_page = 40
+    if page <= 0:
+        page = 1
+    offset_page = (page - 1) * limit_page
 
-    if isMale:
-        user_profile = db.query(Players).filter(Players.is_male == isMale).all()
+
+    if name:
+        user_profile = db.query(Players).filter(
+            Players.name.ilike(f"%{name}%")
+        ).offset(offset_page).limit(limit_page).all()
 
     if cityId:
-        user_profile = db.query(Players).filter(Players.city_id == cityId).all()
+        user_profile = db.query(Players).filter(Players.city_id == cityId).offset(offset_page).limit(limit_page).all()
 
-    if districtId:
-        user_profile = db.query(Players).filter(Players.district_id == districtId).all()
+    if power:
+        user_profile = db.query(Players).filter(Players.rating >= power).offset(offset_page).limit(limit_page).all()
 
-    if isMale is None and districtId is None and cityId is None:
-        user_profile = db.query(Players).all()
+    if name is None and power is None and cityId is None:
+        user_profile = db.query(Players).offset(offset_page).limit(limit_page).all()
 
     for i_user_profile in user_profile:
         if i_user_profile.id != current_user.id:
-            schema_profile = utils.preparing_user_profile(i_user_profile, db)
+            schema_profile = utils.preparing_user_profile(i_user_profile, db, current_user.id)
             utils.add_avatar(schema_profile)
+            schema_profile = schema.ShemaAnotherPlayer(**schema_profile).dict()
             user_list.append(schema_profile)
     answer = utils.answer_user_data(True, "", user_list)
     return answer
@@ -175,7 +185,7 @@ async def users_user(user_id: int,
 
     user_profile = authentication.get_user_id(db=db, user_id=str(user_id))
     if user_profile:
-        schema_profile = utils.preparing_user_profile(user_profile, db)
+        schema_profile = utils.preparing_user_profile(user_profile, db, current_user.id)
         utils.add_avatar(schema_profile)
         answer = utils.answer_user_data(True, "", schema_profile)
         return answer
@@ -197,4 +207,41 @@ async def users_update(user_update:schema.ProfileUpdate,
     preparing_response = utils.preparing_user_profile(current_user, db)
     utils.add_avatar(preparing_response)
     answer = utils.answer_user_data(True, "", preparing_response)
+    return answer
+
+
+@router.post("/favorite")
+async def create_favorite(favorite_id: schema.SchemaFavorite,
+                          current_user: Players = Depends(authentication.get_current_user),
+                          db: Session = Depends(get_db)):
+    """ Функция добавления фаворитов """
+    db_profile = authentication.get_user_id(db=db, user_id=str(favorite_id.favoriteId))
+    if db_profile:
+        favorite = Favorite(id_user=str(current_user.id), id_favorite=str(db_profile.id))
+        create_bd(db=db, db_profile=favorite)
+        answer = utils.answer_user(True, "Запись успешно сохранена.")
+        return answer
+
+    answer = utils.answer_user(False, "Пользователь не найден.")
+    return answer
+
+
+@router.delete("/deleteFavorite")
+async def delete_favorite(favorite_id: schema.SchemaFavorite,
+                          current_user: Players = Depends(authentication.get_current_user),
+                          db: Session = Depends(get_db)):
+    """ Функция удаления фаворитов """
+    db_profile = authentication.get_user_id(db=db, user_id=str(favorite_id.favoriteId))
+
+    favorite = db.query(Favorite).filter(
+        and_(Favorite.id_user == current_user.id, Favorite.id_favorite == db_profile.id)
+    ).first()
+
+    if favorite:
+        print(favorite.id)
+        delete_bd(db, favorite)
+        answer = utils.answer_user(True, "Запись успешно удалена")
+        return answer
+
+    answer = utils.answer_user(False, "Ошибка удаления")
     return answer

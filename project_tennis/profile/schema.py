@@ -44,6 +44,21 @@ class ProfileAuth(SchemaPhone, PasswordCreate):
     pass
 
 
+
+class ShemaAnotherPlayer(BaseModel):
+    id: int
+    lastName: Union[str, None]
+    firstName: Union[str, None]
+    power: float
+    isMale: bool
+    countOfMatches: int
+    urlAvatar: Union[str, None]
+    country: Union[dict, None]
+    city: Union[dict, None]
+    district: Union[dict, None]
+    isFavorite: bool
+
+
 class ProfileUpdate(BaseModel):
     firstName: Union[str, None]
     lastName: Union[str, None]
@@ -52,7 +67,7 @@ class ProfileUpdate(BaseModel):
     cityId: Union[int, None]
     districtId: Union[int, None]
     birthDate: Union[int, None] # в базе Date
-    is_male: Union[bool, None]
+    isMale: Union[bool, None]
     gameStyle: Union[str, None]
     isRightHand: Union[bool, None]
     isOneBackhand: Union[bool, None]
@@ -73,6 +88,13 @@ class ProfileUnf(ProfileUpdate):
 
 class ProfileResponseModel(ErrorResponseModel):
     data: List[ProfileUnf]
+
+    class Config:
+        orm_mode = True
+
+
+class SchemaFavorite(BaseModel):
+    favoriteId: int
 
     class Config:
         orm_mode = True

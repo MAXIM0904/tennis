@@ -1,6 +1,8 @@
 import os
 from random import randint
-from .models import ConfirmationCodes
+
+from games.models import Scores
+from .models import ConfirmationCodes, Favorite
 from . import schema
 from . import authentication
 import time
@@ -9,6 +11,7 @@ from geo.models import Cities, District, Countries
 from geo.schema import SchemaCountry, SchemaDistrict
 from inventory.models import Racquet, Strings
 from inventory.schema import SchemaInventory
+from sqlalchemy import and_
 
 
 #временная функция
@@ -145,10 +148,13 @@ def add_avatar(schema_profile):
         if os.path.exists(f"media/{schema_profile['id']}/userPhoto/{schema_profile['id']}.jpg"):
             schema_profile['urlAvatar'] = f"media/{schema_profile['id']}/userPhoto/{schema_profile['id']}.jpg"
 
+    if not schema_profile.get('urlAvatar'):
+        schema_profile['urlAvatar'] = None
+
     return schema_profile
 
 
-def preparing_user_profile(current_user, db):
+def preparing_user_profile(current_user, db, user_id=None):
     """Функция формирует профиль пользователя для приложения """
     name = current_user.name.split()
     country_id = None
@@ -181,6 +187,7 @@ def preparing_user_profile(current_user, db):
         strings = db.query(Strings).get(current_user.strings_id)
         current_user.racquet = SchemaInventory(**strings.__dict__).dict()
 
+    count_matches = len(db.query(Scores).filter(Scores.f_id == current_user.id).all())
 
     dict_answer = {
         "id": current_user.id,
@@ -188,17 +195,31 @@ def preparing_user_profile(current_user, db):
         "lastName": name[1],
         "phone": current_user.phone,
         "username": current_user.username,
-        'countryId': country_id,
-        "cityId": current_user.city_id,
-        "districtId": current_user.district_id,
+        'country': country_id,
+        "city": current_user.city_id,
+        "district": current_user.district_id,
         "birthDate": current_user.birth_date,
-        "is_male": current_user.is_male,
+        "isMale": current_user.is_male,
         "gameStyle": current_user.game_style,
         "isRightHand": current_user.is_right_hand,
         "isOneBackhand": current_user.is_one_backhand,
         "ground": current_user.ground,
         "shoesName": current_user.shoes_name,
-        "racquetId": current_user.racquet,
-        "stringsId": current_user.racquet
+        "racquet": current_user.racquet,
+        "strings": current_user.racquet,
+        "countOfMatches": count_matches,
+        'power': current_user.rating
     }
+    if user_id:
+        favorite = db.query(Favorite).filter(
+            and_(Favorite.id_user == user_id, Favorite.id_favorite == current_user.id)
+        ).first()
+
+        if favorite:
+            is_favorite = True
+        else:
+            is_favorite = False
+
+        dict_answer['isFavorite'] = is_favorite
+
     return dict_answer

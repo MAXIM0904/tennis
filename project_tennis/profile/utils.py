@@ -208,7 +208,7 @@ def preparing_user_profile(current_user, db, user_id=None):
         "racquet": current_user.racquet,
         "strings": current_user.racquet,
         "countOfMatches": count_matches,
-        'power': current_user.rating
+        "power": round(current_user.rating)
     }
     if user_id:
         favorite = db.query(Favorite).filter(

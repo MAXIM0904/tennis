@@ -45,6 +45,7 @@ class ProfileAuth(SchemaPhone, PasswordCreate):
 
 
 
+
 class ShemaAnotherPlayer(BaseModel):
     id: int
     lastName: Union[str, None]

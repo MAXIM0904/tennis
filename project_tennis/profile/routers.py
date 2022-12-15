@@ -8,7 +8,6 @@ from . import authentication
 from . import utils
 from sqlalchemy import and_
 
-
 router = APIRouter()
 
 
@@ -26,7 +25,7 @@ async def registration_code(number_phone: schema.SchemaPhone, db: Session = Depe
         answer = utils.answer_user_data(True, "Код отправлен", number_phone)
         return answer
 
-    #тестовая функция
+    # тестовая функция
     if user.phone == 79150000000:
         answer = utils.answer_user_data(True, "Код отправлен", {
             "phone": 79150000000,
@@ -39,7 +38,7 @@ async def registration_code(number_phone: schema.SchemaPhone, db: Session = Depe
 
 
 @router.post("/confirmCode")
-async def confirmcode(profile: schema.ProfileCreate, db: Session = Depends(get_db)):
+async def confirm_code(profile: schema.ProfileCreate, db: Session = Depends(get_db)):
     """ Функция проверки ввода кода верификации и регистрации пользователя """
     user = utils.get_confirmation(db, profile.phone)
 
@@ -58,7 +57,7 @@ async def confirmcode(profile: schema.ProfileCreate, db: Session = Depends(get_d
         if user.code == profile.code:
             profile = utils.preparing_profile_recording(profile=profile)
 
-            #временная функция генерации id
+            # временная функция генерации id
             profile = utils.profile_id(db, profile)
             db_profile = Players(**profile)
             create_bd(db=db, db_profile=db_profile)
@@ -127,7 +126,8 @@ async def login_for_access_token(form_data: schema.ProfileAuth, db: Session = De
 
 
 @router.get("/profile")
-async def read_users_me(current_user: Players = Depends(authentication.get_current_user), db: Session = Depends(get_db)):
+async def read_users_me(current_user: Players = Depends(authentication.get_current_user),
+                        db: Session = Depends(get_db)):
     """ Получить информацию о пользователе для ЛК """
     preparing_response = utils.preparing_user_profile(current_user, db)
     utils.add_avatar(preparing_response)
@@ -139,39 +139,63 @@ async def read_users_me(current_user: Players = Depends(authentication.get_curre
 async def all_users(
         page: int = 1,
         cityId: int = None,
-        power: float = None,
+        powerMin: int = None,
+        powerMax: int = None,
         name: str = None,
+        districtId: int = None,
+        isMale: bool = None,
+        isFavorite: bool = None,
         current_user: dict = Depends(authentication.get_current_user),
         db: Session = Depends(get_db)
 ):
     """ Функция возвращает всех пользователей """
     user_list = []
+    queries = [Players.id != current_user.id]
     limit_page = 40
     if page <= 0:
         page = 1
     offset_page = (page - 1) * limit_page
 
-
     if name:
-        user_profile = db.query(Players).filter(
-            Players.name.ilike(f"%{name}%")
-        ).offset(offset_page).limit(limit_page).all()
+        queries.append(Players.name.ilike(f"%{name}%"))
 
     if cityId:
-        user_profile = db.query(Players).filter(Players.city_id == cityId).offset(offset_page).limit(limit_page).all()
+        queries.append(Players.city_id == cityId)
 
-    if power:
-        user_profile = db.query(Players).filter(Players.rating >= power).offset(offset_page).limit(limit_page).all()
+    if powerMax or powerMin:
+        if powerMin and not powerMax:
+            powerMax = 99999999999999
+        elif powerMax and not powerMin:
+            powerMin = 0
+        queries.append(Players.rating >= powerMin)
+        queries.append(Players.rating <= powerMax)
 
-    if name is None and power is None and cityId is None:
+    if isMale is not None:
+        queries.append(Players.is_male == isMale)
+
+    if districtId:
+        queries.append(Players.district_id == districtId)
+
+    if isFavorite:
+        user_profile = []
+        favorite = db.query(Favorite).filter(Favorite.id_user == current_user.id).all()
+        for i in favorite:
+            profile_favorite = authentication.get_user_id(db, str(i.id_favorite))
+            user_profile.append(profile_favorite)
+    elif len(queries) > 1:
+        user_profile = db.query(Players).filter(*queries).offset(offset_page).limit(limit_page).all()
+    else:
         user_profile = db.query(Players).offset(offset_page).limit(limit_page).all()
 
     for i_user_profile in user_profile:
-        if i_user_profile.id != current_user.id:
-            schema_profile = utils.preparing_user_profile(i_user_profile, db, current_user.id)
-            utils.add_avatar(schema_profile)
-            schema_profile = schema.ShemaAnotherPlayer(**schema_profile).dict()
-            user_list.append(schema_profile)
+        schema_profile = utils.preparing_user_profile(i_user_profile, db, current_user.id)
+        utils.add_avatar(schema_profile)
+        schema_profile = schema.ShemaAnotherPlayer(**schema_profile).dict()
+        if isFavorite is False:
+            if schema_profile["isFavorite"]:
+                continue
+        user_list.append(schema_profile)
+
     answer = utils.answer_user_data(True, "", user_list)
     return answer
 
@@ -194,7 +218,7 @@ async def users_user(user_id: int,
 
 
 @router.put("/profile")
-async def users_update(user_update:schema.ProfileUpdate,
+async def users_update(user_update: schema.ProfileUpdate,
                        current_user: Players = Depends(authentication.get_current_user),
                        db: Session = Depends(get_db)):
     """ Изменение данных пользователя"""
@@ -237,7 +261,6 @@ async def delete_favorite(favorite_id: schema.SchemaFavorite,
     ).first()
 
     if favorite:
-        print(favorite.id)
         delete_bd(db, favorite)
         answer = utils.answer_user(True, "Запись успешно удалена")
         return answer

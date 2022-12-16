@@ -8,6 +8,7 @@ from games.models import GameOrders, DoublesScores, Scores
 from profile import utils
 from profile.models import Players
 from sql_app.db import create_bd
+from . import utils_game
 
 
 game = APIRouter()
@@ -20,7 +21,6 @@ async def read_own_items(current_user: Players = Depends(authentication.get_curr
     user_profile = db.query(GameOrders).all()
     schema_profile = schema.ApplicationModel(requests=user_profile)
     return utils.answer_user_data(True, "", schema_profile.dict())
-
 
 
 @game.post("/request/add")
@@ -37,27 +37,43 @@ async def application_create(application_create: schema.ApplicationCreate,
 
 @game.post("/matches/doubles_create")
 async def doubles_scores_create(
-        doubles_scores_create: schema.DoublesScoresCreate,
+        doubles_scores_create: schema.SchemaScores,
         current_user: Players = Depends(authentication.get_current_user),
         db: Session = Depends(get_db)):
-    """ Функция создает запись игры с 4-мя играками """
+
+    """ Функция создает запись игры с 4-мя игроками """
+
     create_doubles_scores = doubles_scores_create.dict(exclude_unset=True)
     create_doubles_scores['f_one_id'] = current_user.id
     db_create_doubles = DoublesScores(**create_doubles_scores)
     create_bd(db=db, db_profile=db_create_doubles)
-    schema_profile = schema.SchemaDoublesScores(requests=db_create_doubles)
-    return utils.answer_user_data(True, "Отлично, счет внесен. Ваша сила изменилась:", schema_profile.dict())
+    # schema_profile = schema.SchemaDoublesScores(requests=db_create_doubles)
+    # return utils.answer_user_data(True, "Отлично, счет внесен. Ваша сила изменилась:", schema_profile.dict())
 
 
 @game.post("/matches/create")
 async def scores_create(
-        scores_create: schema.ScoresSchemasCreate,
+        scores_create: schema.SchemaScores,
         current_user: Players = Depends(authentication.get_current_user),
         db: Session = Depends(get_db)):
-    """ Функция создает запись игры с 2-мя играками """
-    create_scores = scores_create.dict(exclude_unset=True)
-    create_scores['f_id'] = current_user.id
-    db_create_scores = Scores(**create_scores)
+
+    """ Функция создает запись игры с 2-мя игроками """
+    dict_scores = utils_game.dictionary_save(scores_create, current_user.id)
+    db_create_scores = Scores(**dict_scores)
     create_bd(db=db, db_profile=db_create_scores)
-    schema_profile = schema.SchemaScores(requests=db_create_scores)
-    return utils.answer_user_data(True, "Отлично, счет внесен. Ваша сила изменилась:", schema_profile.dict())
+    return utils.answer_user_data(True, "Отлично, счет внесен. Ваша сила изменилась.",  {"rating": 1234})
+
+
+@game.get("/matches/history")
+async def scores_history(
+        current_user: Players = Depends(authentication.get_current_user),
+        db: Session = Depends(get_db)
+):
+    """ Функция возвращает информацию обо всех матчах пользователя """
+    all_math = []
+    db_all_math = db.query(Scores).filter(Scores.f_id == current_user.id).all()
+    for i_math in db_all_math:
+        inf_math = utils_game.preparing_response(db, i_math, current_user.id)
+        all_math.append(inf_math)
+
+    return utils.answer_user_data(True, "Ok",  all_math)

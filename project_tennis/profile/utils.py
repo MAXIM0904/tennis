@@ -139,14 +139,15 @@ def preparing_profile_recording(profile):
 
 def add_avatar(schema_profile):
     """ Функция добавления ссылок на картинки """
+
     if schema_profile.get('data'):
         for i_schema_profile in schema_profile['data']:
             if os.path.exists(f"media/{i_schema_profile['id']}/userPhoto/{i_schema_profile['id']}.jpg"):
-                i_schema_profile['urlAvatar'] = f"media/{i_schema_profile['id']}/userPhoto/{i_schema_profile['id']}.jpg"
+                i_schema_profile['urlAvatar'] = f"http://bugz.su:8000/media/{i_schema_profile['id']}/userPhoto/{i_schema_profile['id']}.jpg"
 
     else:
         if os.path.exists(f"media/{schema_profile['id']}/userPhoto/{schema_profile['id']}.jpg"):
-            schema_profile['urlAvatar'] = f"media/{schema_profile['id']}/userPhoto/{schema_profile['id']}.jpg"
+            schema_profile['urlAvatar'] = f"http://bugz.su:8000/media/{schema_profile['id']}/userPhoto/{schema_profile['id']}.jpg"
 
     if not schema_profile.get('urlAvatar'):
         schema_profile['urlAvatar'] = None
@@ -154,12 +155,17 @@ def add_avatar(schema_profile):
     return schema_profile
 
 
-def preparing_user_profile(current_user, db, user_id=None):
-    """Функция формирует профиль пользователя для приложения """
-    name = current_user.name.split()
-    country_id = None
+def name_user(name):
+    name = name.split()
     if len(name) <= 1:
         name.append(None)
+    return name
+
+
+def preparing_user_profile(current_user, db, user_id=None):
+    """Функция формирует профиль пользователя для приложения """
+    name = name_user(current_user.name)
+    country_id = None
 
     if current_user.birth_date:
         time_birth = str(current_user.birth_date).split("-")
@@ -208,7 +214,9 @@ def preparing_user_profile(current_user, db, user_id=None):
         "racquet": current_user.racquet,
         "strings": current_user.racquet,
         "countOfMatches": count_matches,
-        "power": round(current_user.rating)
+        "power": round(current_user.rating),
+        "lastGameDate": 486545,
+        "lastActivityDate": 454655
     }
     if user_id:
         favorite = db.query(Favorite).filter(

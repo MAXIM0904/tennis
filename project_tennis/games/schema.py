@@ -6,7 +6,6 @@ from datetime import datetime
 
 
 class ApplicationCreate(BaseModel):
-
     loc_szao: Union[bool, None]
     loc_sao: Union[bool, None]
     loc_svao: Union[bool, None]
@@ -24,8 +23,6 @@ class ApplicationCreate(BaseModel):
     pay: Union[int, None]
     game_time_hh: Union[bool, None]
 
-    class Config:
-        orm_mode = True
 
 
 class ApplicationInf(ApplicationCreate):
@@ -37,8 +34,14 @@ class ApplicationModel(BaseModel):
     requests: List[ApplicationInf]
 
 
-class DoublesScoresSchemas(BaseModel):
+class SchemaScores(BaseModel):
+    playerId: int
+    gameDate: int
+    isUserWon: bool
+    result: list[dict]
 
+
+class SchemaSaveScores(BaseModel):
     match_won: Union[bool, None] = True
     first_set_f: Union[int, None] = 12
     first_set_s: Union[int, None] = 11
@@ -68,41 +71,41 @@ class DoublesScoresSchemas(BaseModel):
         orm_mode = True
 
 
-class DoublesScoresCreate(DoublesScoresSchemas):
-    f_two_id: Union[int, None]
-    s_one_id: Union[int, None]
-    s_two_id: Union[int, None]
-
-    class Config:
-        orm_mode = True
-
-
-class SchemaDoublesScores(BaseModel):
-    requests: DoublesScoresCreate
-
-
-class DoublesScoresSchemasInf(DoublesScoresCreate):
-    id: Union[int, None]
-    f_one_id: Union[int, None]
-
-    class Config:
-        orm_mode = True
-
-
-class ScoresSchemasCreate(DoublesScoresSchemas):
-    s_id: Union[int, None]
-
-    class Config:
-        orm_mode = True
-
-
-class ScoresSchemasInf(ScoresSchemasCreate):
-    id: Union[int, None]
-    f_id: Union[int, None]
-
-    class Config:
-        orm_mode = True
-
-
-class SchemaScores(BaseModel):
-    requests: ScoresSchemasInf
+# class DoublesScoresCreate(DoublesScoresSchemas):
+#     f_two_id: Union[int, None]
+#     s_one_id: Union[int, None]
+#     s_two_id: Union[int, None]
+#
+#     class Config:
+#         orm_mode = True
+#
+#
+# class SchemaDoublesScores(BaseModel):
+#     requests: DoublesScoresCreate
+#
+#
+# class DoublesScoresSchemasInf(DoublesScoresCreate):
+#     id: Union[int, None]
+#     f_one_id: Union[int, None]
+#
+#     class Config:
+#         orm_mode = True
+#
+#
+# class ScoresSchemasCreate(DoublesScoresSchemas):
+#     s_id: Union[int, None]
+#
+#     class Config:
+#         orm_mode = True
+#
+#
+# class ScoresSchemasInf(ScoresSchemasCreate):
+#     id: Union[int, None]
+#     f_id: Union[int, None]
+#
+#     class Config:
+#         orm_mode = True
+#
+#
+# class SchemaScores(BaseModel):
+#     requests: ScoresSchemasInf

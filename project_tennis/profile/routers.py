@@ -164,11 +164,12 @@ async def all_users(
 
     if powerMax or powerMin:
         if powerMin and not powerMax:
-            powerMax = 99999999999999
+            queries.append(Players.rating >= powerMin)
         elif powerMax and not powerMin:
-            powerMin = 0
-        queries.append(Players.rating >= powerMin)
-        queries.append(Players.rating <= powerMax)
+            queries.append(Players.rating <= powerMax)
+        else:
+            queries.append(Players.rating >= powerMin)
+            queries.append(Players.rating <= powerMax)
 
     if isMale is not None:
         queries.append(Players.is_male == isMale)
@@ -196,17 +197,20 @@ async def all_users(
                 continue
         user_list.append(schema_profile)
 
-    answer = utils.answer_user_data(True, "", user_list)
+    if user_list:
+        answer = utils.answer_user_data(True, "", user_list)
+    else:
+        answer = utils.answer_user(True, "Пользователи не найдены")
     return answer
 
 
-@router.get("/{user_id}")
-async def users_user(user_id: int,
+@router.get("/info")
+async def users_user(id: int,
                      current_user: Players = Depends(authentication.get_current_user),
                      db: Session = Depends(get_db)):
     """ Функция возвращает пользователя по id """
 
-    user_profile = authentication.get_user_id(db=db, user_id=str(user_id))
+    user_profile = authentication.get_user_id(db=db, user_id=str(id))
     if user_profile:
         schema_profile = utils.preparing_user_profile(user_profile, db, current_user.id)
         utils.add_avatar(schema_profile)

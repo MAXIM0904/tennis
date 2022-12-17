@@ -7,9 +7,7 @@ from geo.routers import geo
 from inventory.routers import inventory
 from fastapi.responses import FileResponse
 
-
 app = FastAPI()
-
 
 app.include_router(
     router,
@@ -17,7 +15,6 @@ app.include_router(
     tags=["user"],
     responses={418: {"description": "Teapot"}},
 )
-
 
 app.include_router(
     game,
@@ -54,6 +51,7 @@ app.include_router(
     responses={418: {"description": "Teapot"}},
 )
 
-@app.get("/image")
-async def image(url: str):
-    return FileResponse(url)
+
+@app.get("/image/{full_path:path}")
+async def image(full_path: str):
+    return FileResponse(full_path)

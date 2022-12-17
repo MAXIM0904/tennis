@@ -16,7 +16,8 @@ async def photo_user(file_user: UploadFile = File(...),
     file_url = f"media/{current_user.id}/userPhoto"
     new_name = f"{current_user.id}.jpg"
     answer_save = save_img(file_url=file_url, file_user=file_user, new_name=new_name)
-    return utils.answer_user_data(answer_save[0], answer_save[1], {"url": f"http://bugz.su:8000/{file_url}/{new_name}"})
+    url = utils.url_avatar(f"{file_url}/{new_name}")
+    return utils.answer_user_data(answer_save[0], answer_save[1], {"url": url})
 
 
 @photo.post("/matchPhoto")
@@ -27,7 +28,8 @@ async def photo_match(
     file_url = f"media/{current_user.id}/matchPhoto"
     new_name = f"{current_user.id}.jpg"
     answer_save = save_img(file_url=file_url, file_user=file_match, new_name=new_name)
-    return utils.answer_user_data(answer_save[0], answer_save[1], {"url": f"http://bugz.su:8000/{file_url}/{new_name}"})
+    url = utils.url_avatar(f"{file_url}/{new_name}")
+    return utils.answer_user_data(answer_save[0], answer_save[1], {"url": url})
 
 
 @photo.get("/defaultAvatars")

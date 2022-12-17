@@ -137,17 +137,22 @@ def preparing_profile_recording(profile):
     return profile
 
 
+def url_avatar(url):
+    url_host = "http://127.0.0.1:8000" #"http://bugz.su:8000"
+    return f"{url_host}/image/{url}"
+
+
 def add_avatar(schema_profile):
     """ Функция добавления ссылок на картинки """
 
     if schema_profile.get('data'):
         for i_schema_profile in schema_profile['data']:
             if os.path.exists(f"media/{i_schema_profile['id']}/userPhoto/{i_schema_profile['id']}.jpg"):
-                i_schema_profile['urlAvatar'] = f"http://bugz.su:8000/media/{i_schema_profile['id']}/userPhoto/{i_schema_profile['id']}.jpg"
+                i_schema_profile['urlAvatar'] = url_avatar(f"media/{i_schema_profile['id']}/userPhoto/{i_schema_profile['id']}.jpg")
 
     else:
         if os.path.exists(f"media/{schema_profile['id']}/userPhoto/{schema_profile['id']}.jpg"):
-            schema_profile['urlAvatar'] = f"http://bugz.su:8000/media/{schema_profile['id']}/userPhoto/{schema_profile['id']}.jpg"
+            schema_profile['urlAvatar'] = url_avatar(f"media/{schema_profile['id']}/userPhoto/{schema_profile['id']}.jpg")
 
     if not schema_profile.get('urlAvatar'):
         schema_profile['urlAvatar'] = None

@@ -5,6 +5,7 @@ from photo.routers import photo
 from user_survey.routers import survey
 from geo.routers import geo
 from inventory.routers import inventory
+from fastapi.responses import FileResponse
 
 
 app = FastAPI()
@@ -52,3 +53,7 @@ app.include_router(
     tags=["test"],
     responses={418: {"description": "Teapot"}},
 )
+
+@app.get("/image")
+async def image(url: str):
+    return FileResponse(url)

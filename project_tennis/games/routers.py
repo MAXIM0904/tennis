@@ -61,7 +61,11 @@ async def scores_create(
     dict_scores = utils_game.dictionary_save(scores_create, current_user.id)
     db_create_scores = Scores(**dict_scores)
     create_bd(db=db, db_profile=db_create_scores)
-    return utils.answer_user_data(True, "Отлично, счет внесен. Ваша сила изменилась.",  {"rating": 1234})
+    return utils.answer_user_data(True, "Отлично, счет внесен. Ваша сила изменилась.",  {
+        "matchId": db_create_scores.id,
+        "powerOld": 456,
+        "powerNew": 5555
+    })
 
 
 @game.get("/matches/history")
@@ -77,3 +81,25 @@ async def scores_history(
         all_math.append(inf_math)
 
     return utils.answer_user_data(True, "Ok",  all_math)
+
+
+@game.post("/matches/evaluationGame")
+async def evaluation_game(
+        evaluation: schema.SchemaEvaluation,
+        current_user: Players = Depends(authentication.get_current_user),
+        db: Session = Depends(get_db)
+):
+    """ Функция оценки игры """
+
+
+    return utils.answer_user_data(True, "Ok",  evaluation)
+
+
+@game.get("/matches/gameSchedule")
+async def game_schedule(
+        current_user: Players = Depends(authentication.get_current_user),
+        db: Session = Depends(get_db)
+):
+    """ Функция возвращает url графика """
+
+    return utils.answer_user_data(True, "Ok", {'url': "http://bugz.su:8000/project_tennis/media/Schedule/Schedule.PNG"})

@@ -71,6 +71,20 @@ class SchemaSaveScores(BaseModel):
         orm_mode = True
 
 
+class SchemaEvaluation(BaseModel):
+    playerId: int
+    forhand: int
+    backhand: int
+    diversity: int
+    innings: int
+    gameAboutNer: int
+    agression: int
+    physics: int
+    control: int
+    matchPoints: int
+    ground: str
+
+
 # class DoublesScoresCreate(DoublesScoresSchemas):
 #     f_two_id: Union[int, None]
 #     s_one_id: Union[int, None]

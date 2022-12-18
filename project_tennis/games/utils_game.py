@@ -58,43 +58,112 @@ def dictionary_save(create_scores, user_id):
     return dict_instance
 
 
-def preparing_response(db, all_math, user_id):
+def preparing_response(db, all_math):
     """ Функция возвращает информацию для ответа приложению """
 
-    user_instance = authentication.get_user_id(db, str(all_math.f_id))
-    name = utils.name_user(user_instance.name)
-    player_avatar = utils.add_avatar(user_instance.__dict__)
+    user_1 = authentication.get_user_id(db, all_math.f_id)
+    user_2 = authentication.get_user_id(db, all_math.s_id)
+    name_user_1 = utils.name_user(user_1.name)
+    name_user_2 = utils.name_user(user_2.name)
+    player_avatar1 = utils.add_avatar(user_1.__dict__)
+    player_avatar2 = utils.add_avatar(user_2.__dict__)
+
+    if all_math.played_at:
+        # time_math = all_math.played_at.strftime('%Y-%m-%d')
+        date_match = utils.changing_time_format(all_math.played_at)
+    else:
+        date_match = None
+
     dict_answer = {
-        "playerId": user_instance.id,
-        "playerFirstName": name[0],
-        "playerLastName": name[1],
-        "playerAvatarUrl": f"{player_avatar['urlAvatar']}",
-        "playerOldPower": 2222,
-        "playerNewPower": 3333,
-        "userOldPower": 3333,
-        "userNewPower": 2222,
-        "isUserWin": all_math.match_won,
-        "gameDate": 222222222,
-        "first_set_f": all_math.first_set_f,
-        "first_set_s": all_math.first_set_s,
-        "first_set_tie_f": all_math.first_set_tie_f,
-        "first_set_tie_s": all_math.first_set_tie_s,
-        "second_set_f": all_math.second_set_f,
-        "second_set_s": all_math.second_set_s,
-        "second_set_tie_f": all_math.second_set_tie_f,
-        "second_set_tie_s": all_math.second_set_tie_s,
-        "third_set_f": all_math.third_set_f,
-        "third_set_s": all_math.third_set_s,
-        "third_set_tie_f": all_math.third_set_tie_f,
-        "third_set_tie_s": all_math.third_set_tie_s,
-        "four_set_f": all_math.fourth_set_f,
-        "four_set_s": all_math.fourth_set_s,
-        "four_set_tie_f": all_math.fourth_set_tie_f,
-        "four_set_tie_s": all_math.fourth_set_tie_s,
-        "fifth_set_f": all_math.fifth_set_f,
-        "fifth_set_s": all_math.fifth_set_s,
-        "fifth_set_tie_f": all_math.fifth_set_tie_f,
-        "fifth_set_tie_s": all_math.fifth_set_tie_s
+        "player1Id": user_1.id,
+        "player1FirstName": name_user_1[0],
+        "player1LastName": name_user_1[1],
+        "player1AvatarUrl": f"{player_avatar1['urlAvatar']}",
+        "player1OldPower": 2222,
+        "player1NewPower": 3333,
+
+        "player2Id": user_2.id,
+        "player2FirstName": name_user_2[0],
+        "player2LastName": name_user_2[1],
+        "player2AvatarUrl": f"{player_avatar2['urlAvatar']}",
+        "player2OldPower": 156,
+        "player2NewPower": 1256,
+
+
+        "isPlayer1Win": all_math.match_won,
+        "gameDate": date_match,
+        "result": [
+            {
+                "numberSet": 1,
+                "countPlayer": all_math.first_set_f,
+                "countUser": all_math.first_set_s,
+                "isTie": False,
+                "isSuperTie": False
+            },
+            {
+                "numberSet": 1,
+                "countPlayer": all_math.first_set_tie_f,
+                "countUser": all_math.first_set_tie_s,
+                "isTie": True,
+                "isSuperTie": False
+            },
+            {
+                "numberSet": 2,
+                "countPlayer": all_math.second_set_f,
+                "countUser": all_math.second_set_s,
+                "isTie": False,
+                "isSuperTie": False
+            },
+            {
+                "numberSet": 2,
+                "countPlayer": all_math.second_set_tie_f,
+                "countUser": all_math.second_set_tie_s,
+                "isTie": True,
+                "isSuperTie": False
+            },
+            {
+                "numberSet": 3,
+                "countPlayer": all_math.third_set_f,
+                "countUser": all_math.third_set_s,
+                "isTie": False,
+                "isSuperTie": False
+            },
+            {
+                "numberSet": 3,
+                "countPlayer": all_math.third_set_tie_f,
+                "countUser": all_math.third_set_tie_s,
+                "isTie": True,
+                "isSuperTie": False
+            },
+            {
+                "numberSet": 4,
+                "countPlayer": all_math.fourth_set_f,
+                "countUser": all_math.fourth_set_s,
+                "isTie": False,
+                "isSuperTie": False
+            },
+            {
+                "numberSet": 4,
+                "countPlayer": all_math.fourth_set_tie_f,
+                "countUser": all_math.fourth_set_tie_s,
+                "isTie": True,
+                "isSuperTie": False
+            },
+            {
+                "numberSet": 5,
+                "countPlayer": all_math.fifth_set_f,
+                "countUser": all_math.fifth_set_s,
+                "isTie": False,
+                "isSuperTie": False
+            },
+            {
+                "numberSet": 5,
+                "countPlayer": all_math.fifth_set_tie_f,
+                "countUser": all_math.fifth_set_tie_s,
+                "isTie": True,
+                "isSuperTie": False
+            }
+        ]
     }
 
     return dict_answer

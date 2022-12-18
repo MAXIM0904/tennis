@@ -9,7 +9,7 @@ from profile import utils
 from profile.models import Players
 from sql_app.db import create_bd
 from . import utils_game
-
+from sqlalchemy import or_
 
 game = APIRouter()
 
@@ -70,14 +70,16 @@ async def scores_create(
 
 @game.get("/matches/history")
 async def scores_history(
+        id: int,
         current_user: Players = Depends(authentication.get_current_user),
         db: Session = Depends(get_db)
 ):
     """ Функция возвращает информацию обо всех матчах пользователя """
     all_math = []
-    db_all_math = db.query(Scores).filter(Scores.f_id == current_user.id).all()
+    db_all_math = db.query(Scores).filter(or_(Scores.f_id == id, Scores.s_id == id)).all()
+
     for i_math in db_all_math:
-        inf_math = utils_game.preparing_response(db, i_math, current_user.id)
+        inf_math = utils_game.preparing_response(db, i_math)
         all_math.append(inf_math)
 
     return utils.answer_user_data(True, "Ok",  all_math)

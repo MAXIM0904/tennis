@@ -161,10 +161,19 @@ def add_avatar(schema_profile):
 
 
 def name_user(name):
+    """Функция преобразования имени"""
     name = name.split()
     if len(name) <= 1:
         name.append(None)
     return name
+
+
+def changing_time_format(date_to_change):
+    """Функция преобразования времени в прошедшее с 1970 года"""
+    time_math = date_to_change.strftime('%Y-%m-%d')
+    time_birth = str(time_math).split("-")
+    dt = datetime.datetime(int(time_birth[0]), int(time_birth[1]), int(time_birth[2]))
+    return int(dt.timestamp())
 
 
 def preparing_user_profile(current_user, db, user_id=None):
@@ -173,9 +182,7 @@ def preparing_user_profile(current_user, db, user_id=None):
     country_id = None
 
     if current_user.birth_date:
-        time_birth = str(current_user.birth_date).split("-")
-        dt = datetime.datetime(int(time_birth[0]), int(time_birth[1]), int(time_birth[2]))
-        current_user.birth_date = int(dt.timestamp())
+        current_user.birth_date = changing_time_format(date_to_change=current_user.birth_date)
 
     if current_user.city_id:
         city = db.query(Cities).get(current_user.city_id)

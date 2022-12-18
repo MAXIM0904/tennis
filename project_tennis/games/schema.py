@@ -77,7 +77,7 @@ class SchemaEvaluation(BaseModel):
     backhand: int
     diversity: int
     innings: int
-    gameAboutNer: int
+    gameAboutNet: int
     agression: int
     physics: int
     control: int

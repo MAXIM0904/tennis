@@ -1,4 +1,3 @@
-import time
 from profile import authentication
 from profile import utils
 
@@ -9,7 +8,7 @@ def dictionary_save(create_scores, user_id):
         "f_id": user_id,
         "s_id": create_scores.playerId,
         "match_won": create_scores.isUserWon,
-        "played_at": time.strftime('%Y-%m-%d', time.localtime(int(create_scores.gameDate))),
+        "played_at": utils.time_save(create_scores.gameDate),
         "sets": len(create_scores.result),
         "status": 1,
     }

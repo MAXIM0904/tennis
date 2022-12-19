@@ -13,4 +13,3 @@ class UserSurvey(Base):
     answer_2 = Column(String(255), autoincrement=False, nullable=True)
     answer_3 = Column(String(255), autoincrement=False, nullable=True)
     published = Column(Boolean, autoincrement=False, nullable=False, default=True)
-

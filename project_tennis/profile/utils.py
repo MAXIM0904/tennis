@@ -33,6 +33,13 @@ def random_code():
     return randint(1000, 9999)
 
 
+def time_save(user_time):
+    """ Функция преобразования времени эпохи в datatime"""
+    time_user = int(user_time)
+    user_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time_user))
+    return user_date
+
+
 def user_update(update_data, current_user):
     if update_data.get('lastName') is not None or update_data.get('firstName') is not None:
         if update_data.get('lastName') is not None and update_data.get('firstName') is not None:
@@ -81,8 +88,7 @@ def user_update(update_data, current_user):
         current_user.strings_id = update_data['stringsId'][0]
     if update_data.get('birthDate') is not None:
         time_user = int(update_data['birthDate'])
-        time.strftime('%Y-%m-%d', time.localtime(time_user))
-        current_user.birth_date = time.strftime('%Y-%m-%d', time.localtime(time_user))
+        current_user.birth_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time_user))
     return current_user
 
 
@@ -170,10 +176,9 @@ def name_user(name):
 
 def changing_time_format(date_to_change):
     """Функция преобразования времени в прошедшее с 1970 года"""
-    time_math = date_to_change.strftime('%Y-%m-%d')
-    time_birth = str(time_math).split("-")
-    dt = datetime.datetime(int(time_birth[0]), int(time_birth[1]), int(time_birth[2]))
-    return int(dt.timestamp())
+    time_format = date_to_change.strftime('%Y-%m-%d %H:%M:%S')
+    time_math = int(time.mktime(time.strptime(time_format, '%Y-%m-%d %H:%M:%S')))
+    return time_math
 
 
 def preparing_user_profile(current_user, db, user_id=None):

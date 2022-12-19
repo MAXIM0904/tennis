@@ -226,7 +226,6 @@ async def users_update(user_update: schema.ProfileUpdate,
                        current_user: Players = Depends(authentication.get_current_user),
                        db: Session = Depends(get_db)):
     """ Изменение данных пользователя"""
-
     update_data = user_update.dict(exclude_unset=True)
     update_user = utils.user_update(update_data=update_data, current_user=current_user)
     create_bd(db=db, db_profile=update_user)

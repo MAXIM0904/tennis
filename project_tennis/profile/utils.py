@@ -1,12 +1,10 @@
 import os
 from random import randint
-
 from games.models import Scores
 from .models import ConfirmationCodes, Favorite
 from . import schema
 from . import authentication
 import time
-import datetime
 from geo.models import Cities, District, Countries
 from geo.schema import SchemaCountry, SchemaDistrict
 from inventory.models import Racquet, Strings
@@ -43,20 +41,20 @@ def time_save(user_time):
 def user_update(update_data, current_user):
     if update_data.get('lastName') is not None or update_data.get('firstName') is not None:
         if update_data.get('lastName') is not None and update_data.get('firstName') is not None:
-            current_user.name = f"{update_data['lastName']} {update_data['firstName']}"
+            current_user.name = f"{update_data['firstName']} {update_data['lastName']}"
 
-        elif update_data.get('lastName') is not None:
+        elif update_data.get('firstName') is not None:
             name = current_user.name.split()
             if len(name) <= 0:
-                name.append(update_data['lastName'])
+                name.append(update_data['firstName'])
             else:
-                name[0] = update_data['lastName']
+                name[0] = update_data['firstName']
         else:
             name = current_user.name.split()
             if len(name) <= 1:
-                name.append(update_data['firstName'])
+                name.append(update_data['lastName'])
             else:
-                name[1] = update_data['firstName']
+                name[1] = update_data['lastName']
 
             current_user.name = str(" ".join(name))
 
@@ -208,14 +206,16 @@ def preparing_user_profile(current_user, db, user_id=None):
 
     if current_user.strings_id:
         strings = db.query(Strings).get(current_user.strings_id)
-        current_user.racquet = SchemaInventory(**strings.__dict__).dict()
+        current_user.strings = SchemaInventory(**strings.__dict__).dict()
+    else:
+        current_user.strings = None
 
     count_matches = len(db.query(Scores).filter(Scores.f_id == current_user.id).all())
 
     dict_answer = {
         "id": current_user.id,
-        "firstName": name[0],
         "lastName": name[1],
+        "firstName": name[0],
         "phone": current_user.phone,
         "telegram": current_user.username,
         "country": country_id,
@@ -229,7 +229,7 @@ def preparing_user_profile(current_user, db, user_id=None):
         "ground": current_user.ground,
         "shoesName": current_user.shoes_name,
         "racquet": current_user.racquet,
-        "strings": current_user.racquet,
+        "strings": current_user.strings,
         "countOfMatches": count_matches,
         "power": round(current_user.rating),
         "lastGameDate": 486545,

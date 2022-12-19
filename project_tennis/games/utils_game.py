@@ -68,12 +68,12 @@ def preparing_response(db, all_math):
     player_avatar2 = utils.add_avatar(user_2.__dict__)
 
     if all_math.played_at:
-        # time_math = all_math.played_at.strftime('%Y-%m-%d')
         date_match = utils.changing_time_format(all_math.played_at)
     else:
         date_match = None
 
     dict_answer = {
+        "matchId": all_math.id,
         "player1Id": user_1.id,
         "player1FirstName": name_user_1[0],
         "player1LastName": name_user_1[1],

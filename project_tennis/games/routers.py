@@ -9,7 +9,7 @@ from profile import utils
 from profile.models import Players
 from sql_app.db import create_bd
 from . import utils_game
-from sqlalchemy import or_
+from sqlalchemy import or_, desc, asc
 
 game = APIRouter()
 
@@ -76,7 +76,7 @@ async def scores_history(
 ):
     """ Функция возвращает информацию обо всех матчах пользователя """
     all_math = []
-    db_all_math = db.query(Scores).filter(or_(Scores.f_id == id, Scores.s_id == id)).all()
+    db_all_math = db.query(Scores).filter(or_(Scores.f_id == id, Scores.s_id == id)).order_by(desc(Scores.played_at)).all()
 
     for i_math in db_all_math:
         inf_math = utils_game.preparing_response(db, i_math)

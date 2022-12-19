@@ -82,7 +82,10 @@ async def scores_history(
         inf_math = utils_game.preparing_response(db, i_math)
         all_math.append(inf_math)
 
-    return utils.answer_user_data(True, "Ok",  all_math)
+    if all_math:
+        return utils.answer_user_data(True, "Ok",  all_math)
+    else:
+        return utils.answer_user(True, "История игр отсутствует")
 
 
 @game.post("/matches/evaluationGame")

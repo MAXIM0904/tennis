@@ -104,4 +104,4 @@ async def game_schedule(
 ):
     """ Функция возвращает url графика """
 
-    return utils.answer_user_data(True, "Ok", {'url': "http://bugz.su:8000/project_tennis/media/Schedule/Schedule.PNG"})
+    return utils.answer_user_data(True, "Ok", {'url': "http://bugz.su:8000/image/media/Schedule/Schedule.PNG"})

@@ -138,7 +138,7 @@ def preparing_profile_recording(profile):
 
 
 def url_avatar(url):
-    url_host = "http://127.0.0.1:8000" #"http://bugz.su:8000"
+    url_host = "http://bugz.su:8000" #"http://127.0.0.1:8000" #
     return f"{url_host}/image/{url}"
 
 

@@ -148,7 +148,7 @@ def delete_file(profile):
 
 def url_avatar(url):
     """ Функция добавления адреса хостинга в адрес аватарки """
-    url_host = "http://127.0.0.1:8000"  # "http://bugz.su:8000"
+    url_host = "http://bugz.su:8000" #"http://127.0.0.1:8000"
     return f"{url_host}/image/{url}?data={os.path.getmtime(url)}"
 
 

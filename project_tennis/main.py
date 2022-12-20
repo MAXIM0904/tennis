@@ -40,14 +40,14 @@ app.include_router(
 app.include_router(
     geo,
     prefix="/geo",
-    tags=["test"],
+    tags=["geo"],
     responses={418: {"description": "Teapot"}},
 )
 
 app.include_router(
     inventory,
     prefix="/inventory",
-    tags=["test"],
+    tags=["inventory"],
     responses={418: {"description": "Teapot"}},
 )
 

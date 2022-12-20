@@ -20,7 +20,7 @@ async def registration_code(number_phone: schema.SchemaPhone, db: Session = Depe
     if not user:
         code = utils.random_code()
         number_phone['code'] = code
-        db_profile = utils.confirmation_controll(db=db, phone_dict=number_phone)
+        db_profile = utils.confirmation_control(db=db, phone_dict=number_phone)
         create_bd(db=db, db_profile=db_profile)
         answer = utils.answer_user_data(True, "Код отправлен", number_phone)
         return answer
@@ -82,7 +82,7 @@ async def password_recovery(number_phone: schema.SchemaPhone, db: Session = Depe
     if user:
         code = utils.random_code()
         number_phone['code'] = code
-        db_profile = utils.confirmation_controll(db=db, phone_dict=number_phone)
+        db_profile = utils.confirmation_control(db=db, phone_dict=number_phone)
         create_bd(db=db, db_profile=db_profile)
         answer = utils.answer_user_data(True, "Код отправлен", number_phone)
         return answer
@@ -209,7 +209,6 @@ async def users_user(id: int,
                      current_user: Players = Depends(authentication.get_current_user),
                      db: Session = Depends(get_db)):
     """ Функция возвращает пользователя по id """
-
     user_profile = authentication.get_user_id(db=db, user_id=str(id))
     if user_profile:
         schema_profile = utils.preparing_user_profile(user_profile, db, current_user.id)
@@ -229,8 +228,9 @@ async def users_update(user_update: schema.ProfileUpdate,
     update_data = user_update.dict(exclude_unset=True)
     update_user = utils.user_update(update_data=update_data, current_user=current_user)
     create_bd(db=db, db_profile=update_user)
-
     preparing_response = utils.preparing_user_profile(current_user, db)
+    if update_data["urlAvatar"] == "delete":
+        utils.delete_file(preparing_response)
     utils.add_avatar(preparing_response)
     answer = utils.answer_user_data(True, "", preparing_response)
     return answer

@@ -9,7 +9,7 @@ from profile import utils
 from profile.models import Players
 from sql_app.db import create_bd
 from . import utils_game
-from sqlalchemy import or_, desc, asc
+from sqlalchemy import or_, desc
 
 game = APIRouter()
 
@@ -56,7 +56,6 @@ async def scores_create(
         scores_create: schema.SchemaScores,
         current_user: Players = Depends(authentication.get_current_user),
         db: Session = Depends(get_db)):
-
     """ Функция создает запись игры с 2-мя игроками """
     dict_scores = utils_game.dictionary_save(scores_create, current_user.id)
     db_create_scores = Scores(**dict_scores)
@@ -71,19 +70,33 @@ async def scores_create(
 @game.get("/matches/history")
 async def scores_history(
         id: int,
+        page: int = 1,
+        fromDate: int = None,
         current_user: Players = Depends(authentication.get_current_user),
         db: Session = Depends(get_db)
 ):
-    """ Функция возвращает информацию обо всех матчах пользователя """
-    all_math = []
-    db_all_math = db.query(Scores).filter(or_(Scores.f_id == id, Scores.s_id == id)).order_by(desc(Scores.played_at)).all()
+    """ Функция возвращает информацию обо всех матчах пользователя (история игр) """
+    all_match = []
 
-    for i_math in db_all_math:
-        inf_math = utils_game.preparing_response(db, i_math)
-        all_math.append(inf_math)
+    queries = [or_(Scores.f_id == id, Scores.s_id == id)]
+    limit_page = 40
+    if page <= 0:
+        page = 1
+    offset_page = (page - 1) * limit_page
 
-    if all_math:
-        return utils.answer_user_data(True, "Ok",  all_math)
+    if fromDate:
+        date_match = utils.time_save(fromDate)
+        queries.append(Scores.played_at >= date_match)
+
+    db_all_math = db.query(Scores).filter(*queries).\
+        order_by(desc(Scores.played_at)).offset(offset_page).limit(limit_page).all()
+
+    for i_match in db_all_math:
+        inf_match = utils_game.preparing_response(db, i_match)
+        all_match.append(inf_match)
+
+    if all_match:
+        return utils.answer_user_data(True, "Ok",  all_match)
     else:
         return utils.answer_user(True, "История игр отсутствует")
 

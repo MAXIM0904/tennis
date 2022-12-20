@@ -11,8 +11,7 @@ from inventory.models import Racquet, Strings
 from inventory.schema import SchemaInventory
 from sqlalchemy import and_
 
-
-#временная функция
+# временная функция
 from .models import Players
 
 
@@ -85,8 +84,7 @@ def user_update(update_data, current_user):
     if update_data.get('stringsId') is not None:
         current_user.strings_id = update_data['stringsId'][0]
     if update_data.get('birthDate') is not None:
-        time_user = int(update_data['birthDate'])
-        current_user.birth_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time_user))
+        current_user.birth_date = time_save(update_data['birthDate'])
     return current_user
 
 
@@ -99,7 +97,7 @@ def get_confirmation(db, phone: int):
         return False
 
 
-def confirmation_controll(db, phone_dict: dict):
+def confirmation_control(db, phone_dict: dict):
     """
     Функция контролирует наличие одинаковых записей в таблице ConfirmationCodes.
     При наличии повторов перезаписывается код верификации (code)
@@ -141,25 +139,36 @@ def preparing_profile_recording(profile):
     return profile
 
 
+def delete_file(profile):
+    """Функция удаления файла по url"""
+    avatar = local_url_avatar(profile)
+    if os.path.exists(avatar):
+        os.remove(avatar)
+
+
 def url_avatar(url):
-    url_host = "http://bugz.su:8000" #"http://127.0.0.1:8000" #
-    return f"{url_host}/image/{url}"
+    """ Функция добавления адреса хостинга в адрес аватарки """
+    url_host = "http://127.0.0.1:8000"  # "http://bugz.su:8000"
+    return f"{url_host}/image/{url}?data={os.path.getmtime(url)}"
+
+
+def append_url_avatar(profile, url):
+    """ Функция проверяет наличие файла и возвращает его адрес"""
+    profile['urlAvatar'] = url_avatar(url) if os.path.exists(url) else None
+    return profile
+
+
+def local_url_avatar(profile):
+    return f"media/{profile['id']}/userPhoto/{profile['id']}.jpg"
 
 
 def add_avatar(schema_profile):
     """ Функция добавления ссылок на картинки """
-
     if schema_profile.get('data'):
         for i_schema_profile in schema_profile['data']:
-            if os.path.exists(f"media/{i_schema_profile['id']}/userPhoto/{i_schema_profile['id']}.jpg"):
-                i_schema_profile['urlAvatar'] = url_avatar(f"media/{i_schema_profile['id']}/userPhoto/{i_schema_profile['id']}.jpg")
-
+            append_url_avatar(i_schema_profile, local_url_avatar(i_schema_profile))
     else:
-        if os.path.exists(f"media/{schema_profile['id']}/userPhoto/{schema_profile['id']}.jpg"):
-            schema_profile['urlAvatar'] = url_avatar(f"media/{schema_profile['id']}/userPhoto/{schema_profile['id']}.jpg")
-
-    if not schema_profile.get('urlAvatar'):
-        schema_profile['urlAvatar'] = None
+        append_url_avatar(schema_profile, local_url_avatar(schema_profile))
 
     return schema_profile
 
@@ -183,9 +192,12 @@ def preparing_user_profile(current_user, db, user_id=None):
     """Функция формирует профиль пользователя для приложения """
     name = name_user(current_user.name)
     country_id = None
+    print('980990')
+    print(current_user.strings_id)
 
-    if current_user.birth_date:
-        current_user.birth_date = changing_time_format(date_to_change=current_user.birth_date)
+    current_birth_date = changing_time_format(
+        date_to_change=current_user.birth_date
+    ) if current_user.birth_date else current_user.birth_date
 
     if current_user.city_id:
         city = db.query(Cities).get(current_user.city_id)
@@ -199,16 +211,11 @@ def preparing_user_profile(current_user, db, user_id=None):
 
     if current_user.racquet:
         racquet = db.query(Racquet).get(current_user.racquet)
-        if racquet:
-            current_user.racquet = SchemaInventory(**racquet.__dict__).dict()
-        else:
-            current_user.racquet = None
+        current_user.racquet = SchemaInventory(**racquet.__dict__).dict() if racquet else None
 
     if current_user.strings_id:
         strings = db.query(Strings).get(current_user.strings_id)
-        current_user.strings = SchemaInventory(**strings.__dict__).dict()
-    else:
-        current_user.strings = None
+        current_user.strings_id = SchemaInventory(**strings.__dict__).dict() if strings else None
 
     count_matches = len(db.query(Scores).filter(Scores.f_id == current_user.id).all())
 
@@ -221,7 +228,7 @@ def preparing_user_profile(current_user, db, user_id=None):
         "country": country_id,
         "city": current_user.city_id,
         "district": current_user.district_id,
-        "birthDate": current_user.birth_date,
+        "birthDate": current_birth_date,
         "isMale": current_user.is_male,
         "gameStyle": current_user.game_style,
         "isRightHand": current_user.is_right_hand,
@@ -229,7 +236,7 @@ def preparing_user_profile(current_user, db, user_id=None):
         "ground": current_user.ground,
         "shoesName": current_user.shoes_name,
         "racquet": current_user.racquet,
-        "strings": current_user.strings,
+        "strings": current_user.strings_id,
         "countOfMatches": count_matches,
         "power": round(current_user.rating),
         "lastGameDate": 486545,
@@ -250,21 +257,21 @@ def preparing_user_profile(current_user, db, user_id=None):
     return dict_answer
 
 
-def create_bot_user(db, profile):
-    """ Вспомогательная функция для быстрого добавления в базу данных пользователей """
-    from sql_app.db import create_bd
-
-    for i in range(150):
-        #добавить пользователя в базу данных
-        # profile['name'] = f"testuser{i}"
-        # profile['phone'] += 1
-        # profile['id'] += 1
-        # db_profile = Players(**profile)
-        # create_bd(db=db, db_profile=db_profile)
-
-        #добавить поле
-        name = f"testuser{i}"
-        user_profile = db.query(Players).filter(Players.name == name).first()
-        if user_profile:
-            user_profile.username = f"@Vova1970.{i}"
-        create_bd(db=db, db_profile=user_profile)
+# def create_bot_user(db, profile):
+#     """ Вспомогательная функция для быстрого добавления в базу данных пользователей """
+#     from sql_app.db import create_bd
+#
+#     for i in range(150):
+#         добавить пользователя в базу данных
+#         profile['name'] = f"testuser{i}"
+#         profile['phone'] += 1
+#         profile['id'] += 1
+#         db_profile = Players(**profile)
+#         create_bd(db=db, db_profile=db_profile)
+#
+#         # добавить поле
+#         name = f"testuser{i}"
+#         user_profile = db.query(Players).filter(Players.name == name).first()
+#         if user_profile:
+#             user_profile.username = f"@Vova1970.{i}"
+#         create_bd(db=db, db_profile=user_profile)

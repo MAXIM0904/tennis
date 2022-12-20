@@ -77,7 +77,7 @@ class ProfileUpdate(BaseModel):
     shoesName: Union[str, None]
     racquetId: Union[list[int], None]
     stringsId: Union[list[int], None]
-    urlPredefinedAvatar: Union[str, None]
+    urlAvatar: Union[str, None]
 
 
 class ProfileUnf(ProfileUpdate):

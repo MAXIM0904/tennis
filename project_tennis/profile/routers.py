@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from . import schema
 from fastapi import Depends
 from sql_app.db import get_db, create_bd, delete_bd
+from photo.utils import save_default_img
 from .models import Players, Favorite
 from . import authentication
 from . import utils
@@ -226,11 +227,20 @@ async def users_update(user_update: schema.ProfileUpdate,
                        db: Session = Depends(get_db)):
     """ Изменение данных пользователя"""
     update_data = user_update.dict(exclude_unset=True)
+    if update_data.get("phone"):
+        if authentication.get_user_phone(db=db, phone=update_data["phone"]):
+            answer = utils.answer_user(False, "Пользователь данным телефоном уже зарегистрирован")
+            return answer
     update_user = utils.user_update(update_data=update_data, current_user=current_user)
+
+    if "media/defaultAvatars/" in update_data["urlAvatar"]:
+        save_default_img(current_user.id, update_data["urlAvatar"])
     create_bd(db=db, db_profile=update_user)
+
     preparing_response = utils.preparing_user_profile(current_user, db)
     if update_data["urlAvatar"] == "delete":
         utils.delete_file(preparing_response)
+
     utils.add_avatar(preparing_response)
     answer = utils.answer_user_data(True, "", preparing_response)
     return answer

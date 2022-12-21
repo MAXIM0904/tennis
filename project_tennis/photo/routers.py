@@ -1,3 +1,5 @@
+import os
+
 from fastapi import APIRouter
 from fastapi import Depends, UploadFile, File, Form
 from profile import authentication
@@ -43,10 +45,9 @@ async def photo_match(
 @photo.get("/defaultAvatars")
 async def default_avatars(current_user: Players = Depends(authentication.get_current_user)):
     """ Получение дефолтных аватарок """
-    url_avatar = {"avatars": [
-        "https://tennis.app/defAv1.jpg",
-        "https://tennis.app/defAv2.jpg",
-        "https://tennis.app/defAv3.jpg"
-    ]}
-
+    url_default = f"media/defaultAvatars"
+    default_avatar = [
+        f"{utils.url_host}/image/{url_default}/{file}" for file in os.listdir(url_default)
+    ]
+    url_avatar = {"avatars": default_avatar}
     return utils.answer_user_data(True, "", url_avatar)

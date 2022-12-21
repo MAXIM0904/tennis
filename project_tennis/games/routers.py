@@ -72,6 +72,7 @@ async def scores_history(
         id: int,
         page: int = 1,
         fromDate: int = None,
+        isWon: bool = None,
         current_user: Players = Depends(authentication.get_current_user),
         db: Session = Depends(get_db)
 ):
@@ -87,6 +88,9 @@ async def scores_history(
     if fromDate:
         date_match = utils.time_save(fromDate)
         queries.append(Scores.played_at >= date_match)
+
+    if isWon:
+        queries.append(Scores.match_won == isWon)
 
     db_all_math = db.query(Scores).filter(*queries).\
         order_by(desc(Scores.played_at)).offset(offset_page).limit(limit_page).all()

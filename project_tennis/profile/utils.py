@@ -15,7 +15,8 @@ from sqlalchemy import and_
 from .models import Players
 
 
-url_host = "http://127.0.0.1:8000" #"http://bugz.su:8000"
+# url_host = "http://127.0.0.1:8000"
+url_host = "http://bugz.su:8000"
 
 def profile_id(db, profile):
     """ Временная функция генерации id Players"""

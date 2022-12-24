@@ -228,13 +228,14 @@ async def users_update(user_update: schema.ProfileUpdate,
     """ Изменение данных пользователя"""
     update_data = user_update.dict(exclude_unset=True)
     if update_data.get("phone"):
-        if authentication.get_user_phone(db=db, phone=update_data["phone"]):
+        if current_user.phone != update_data["phone"] and authentication.get_user_phone(db=db, phone=update_data["phone"]):
             answer = utils.answer_user(False, "Пользователь данным телефоном уже зарегистрирован")
             return answer
     update_user = utils.user_update(update_data=update_data, current_user=current_user)
 
     if "media/defaultAvatars/" in update_data["urlAvatar"]:
         save_default_img(current_user.id, update_data["urlAvatar"])
+
     create_bd(db=db, db_profile=update_user)
 
     preparing_response = utils.preparing_user_profile(current_user, db)

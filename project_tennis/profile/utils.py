@@ -9,7 +9,7 @@ from geo.models import Cities, District, Countries
 from geo.schema import SchemaCountry, SchemaDistrict
 from inventory.models import Racquet, Strings
 from inventory.schema import SchemaInventory
-from sqlalchemy import and_
+from sqlalchemy import and_, or_, desc
 
 # временная функция
 from .models import Players
@@ -194,6 +194,13 @@ def preparing_user_profile(current_user, db, user_id=None):
     """Функция формирует профиль пользователя для приложения """
     name = name_user(current_user.name)
     country_id = None
+    activity_user = (time.time() - current_user.last_аctivity_date) if current_user.last_аctivity_date else None
+
+    list_game = db.query(Scores).filter(
+        or_(Scores.f_id == current_user.id, Scores.s_id == current_user.id)
+    ).order_by(desc(Scores.played_at)).all()
+
+    game_date_user = changing_time_format(list_game[0].played_at) if list_game else None
 
     current_birth_date = changing_time_format(
         date_to_change=current_user.birth_date
@@ -239,8 +246,8 @@ def preparing_user_profile(current_user, db, user_id=None):
         "strings": current_user.strings_id,
         "countOfMatches": count_matches,
         "power": round(current_user.rating),
-        "lastGameDate": 486545,
-        "lastActivityDate": 454655
+        "lastGameDate": game_date_user,
+        "lastActivityTime": activity_user
     }
     if user_id:
         favorite = db.query(Favorite).filter(

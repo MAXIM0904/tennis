@@ -1,3 +1,5 @@
+import time
+
 from fastapi import APIRouter
 from sqlalchemy.orm import Session
 from . import schema
@@ -162,6 +164,10 @@ async def all_users(
 
     if cityId:
         queries.append(Players.city_id == cityId)
+
+    current_user.last_аctivity_date = time.time()
+    create_bd(db=db, db_profile=current_user)
+
 
     if powerMax or powerMin:
         if powerMin and not powerMax:

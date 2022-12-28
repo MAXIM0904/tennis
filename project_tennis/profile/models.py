@@ -42,6 +42,7 @@ class Players(Base):
     ground = Column(Text, autoincrement=False, nullable=True)
     shoes_name = Column(Text, autoincrement=False, nullable=True)
     strings_id = Column(Integer, autoincrement=False, nullable=True)
+    last_аctivity_date = Column(Integer, autoincrement=False, nullable=True)
 
 
 class ConfirmationCodes(Base):

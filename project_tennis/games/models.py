@@ -88,3 +88,13 @@ class Scores(Base):
     fifth_set_tie_f = Column(Integer, autoincrement=False, nullable=True)
     fifth_set_tie_s = Column(Integer, autoincrement=False, nullable=True)
     sets = Column(Integer, autoincrement=False, nullable=True)
+
+
+class Ratings(Base):
+    __tablename__ = 'ratings'
+
+    id = Column(Integer, primary_key=True, autoincrement=True, unique=True, nullable=False)
+    user_id = Column(Integer, autoincrement=False, nullable=True)
+    score_id = Column(Integer, autoincrement=False, nullable=True)
+    rating = Column(Integer, autoincrement=False, nullable=True)
+    rd = Column(Integer, autoincrement=False, nullable=True)

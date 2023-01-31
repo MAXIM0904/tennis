@@ -3,13 +3,14 @@ from sqlalchemy.orm import Session
 from sql_app.db import get_db
 from fastapi import Depends
 from games import schema
-from profile import authentication
-from games.models import GameOrders, DoublesScores, Scores
-from profile import utils
+from games.models import GameOrders, DoublesScores, Scores, Ratings
+from profile import utils, authentication
 from profile.models import Players
 from sql_app.db import create_bd
 from . import utils_game
 from sqlalchemy import or_, desc
+import requests
+import ast
 
 game = APIRouter()
 
@@ -25,7 +26,8 @@ async def read_own_items(current_user: Players = Depends(authentication.get_curr
 
 @game.post("/request/add")
 async def application_create(application_create: schema.ApplicationCreate,
-                             current_user: Players = Depends(authentication.get_current_user),
+                             current_user: Players = Depends(
+                                 authentication.get_current_user),
                              db: Session = Depends(get_db)):
     """ Функция создания заявок """
     create_data = application_create.dict(exclude_unset=True)
@@ -60,11 +62,60 @@ async def scores_create(
     dict_scores = utils_game.dictionary_save(scores_create, current_user.id)
     db_create_scores = Scores(**dict_scores)
     create_bd(db=db, db_profile=db_create_scores)
-    return utils.answer_user_data(True, "Отлично, счет внесен. Ваша сила изменилась.",  {
-        "matchId": db_create_scores.id,
-        "powerOld": 456,
-        "powerNew": 5555
-    })
+    rating_1_user = db.query(Ratings).filter(Ratings.user_id == db_create_scores.f_id).order_by(
+        desc(Ratings.score_id)).limit('1').all()
+    rating_2_user = db.query(Ratings).filter(Ratings.user_id == db_create_scores.s_id).order_by(
+        desc(Ratings.score_id)).limit('1').all()
+    if rating_1_user:
+        rating_1, stability_1 = rating_1_user[0].rating, rating_1_user[0].rd
+    else:
+        rating_1, stability_1 = None, None
+    if rating_2_user:
+        rating_2, stability_2 = rating_1_user[0].rating, rating_1_user[0].rd
+    else:
+        rating_2, stability_2 = None, None
+
+    if len(scores_create.result) > 3:
+        game = 1
+    else:
+        game = 0
+
+    url = f"http://bugz.su:8086/v1/power/{db_create_scores.id}/{rating_1}/{stability_1}/{rating_2}/{stability_2}/{game}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = eval(response.content)
+        dict_data = ast.literal_eval(data)
+
+        profile_ratings = {'id': None,
+                           'user_id': db_create_scores.f_id,
+                           'score_id': dict_data['score'],
+                           'rating': dict_data['new_rating_first_player'],
+                           'rd': dict_data['new_stability_first_player']
+                           }
+        utils_game.save_rating(db, profile_ratings)
+
+        profile_ratings = {'id': None,
+                           'user_id': db_create_scores.s_id,
+                           'score_id': dict_data['score'],
+                           'rating': dict_data['new_rating_second_player'],
+                           'rd': dict_data['new_stability_second_player']
+                           }
+        utils_game.save_rating(db, profile_ratings)
+
+        current_user.rating = dict_data['new_rating_first_player']
+        create_bd(db=db, db_profile=current_user)
+        profile_user = authentication.get_user_id(
+            db, str(db_create_scores.s_id))
+        profile_user.rating = dict_data['new_rating_second_player']
+        create_bd(db=db, db_profile=current_user)
+
+        return utils.answer_user_data(True, "Отлично, счет внесен. Ваша сила изменилась.",  {
+            "matchId": db_create_scores.id,
+            "powerOld": rating_1,
+            "powerNew": dict_data['new_rating_second_player']
+        })
+    else:
+        return utils.answer_user(False, "Ошибка подключения к базе данных.")
 
 
 @game.get("/matches/history")
@@ -93,7 +144,8 @@ async def scores_history(
         queries.append(Scores.match_won == isWon)
 
     db_all_math = db.query(Scores).filter(*queries).\
-        order_by(desc(Scores.played_at)).offset(offset_page).limit(limit_page).all()
+        order_by(desc(Scores.played_at)).offset(
+            offset_page).limit(limit_page).all()
 
     for i_match in db_all_math:
         inf_match = utils_game.preparing_response(db, i_match)
@@ -112,7 +164,6 @@ async def evaluation_game(
         db: Session = Depends(get_db)
 ):
     """ Функция оценки игры """
-
 
     return utils.answer_user_data(True, "Ok",  evaluation)
 

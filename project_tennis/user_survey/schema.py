@@ -16,3 +16,7 @@ class UserSurveyInf(BaseModel):
 
 class SchemaSurvey(BaseModel):
     questions: List[UserSurveyInf]
+
+
+class ResultSurvey(BaseModel):
+    requests: list[dict]

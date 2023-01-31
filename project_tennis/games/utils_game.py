@@ -1,8 +1,11 @@
-from sqlalchemy import desc
+from random import randint
 
+from sqlalchemy import desc
 from games.models import Ratings
 from profile import authentication
 from profile import utils
+from sql_app.db import create_bd
+
 
 def dictionary_save(create_scores, user_id):
     """ Функция подготовки данных об игре к записи в БД """
@@ -65,14 +68,15 @@ def user_power(user_profile, id_match, db):
     id_match = "260"
     user_profile.id = '23392545'
 
-    db_user_ratings = db.query(Ratings).filter(Ratings.user_id == user_profile.id).order_by(desc(Ratings.score_id)).all()
-    db_user_match = db.query(Ratings).filter(Ratings.score_id == id_match).first()
+    db_user_ratings = db.query(Ratings).filter(
+        Ratings.user_id == user_profile.id).order_by(desc(Ratings.score_id)).all()
+    db_user_match = db.query(Ratings).filter(
+        Ratings.score_id == id_match).first()
 
     index = db_user_ratings.index(db_user_match)
     OldPower = db_user_ratings[index].rating
     NewPower = db_user_ratings[index - 1].rating
     return OldPower, NewPower
-
 
 
 def preparing_response(db, all_match):
@@ -186,3 +190,20 @@ def preparing_response(db, all_match):
     }
 
     return dict_answer
+
+
+def profile_ratings_id(db, profile):
+    """ Временная функция генерации id"""
+    while True:
+        id_user = randint(500, 9999999)
+        user = db.query(Ratings).get(id_user)
+        if not user:
+            profile['id'] = id_user
+            return profile
+
+
+def save_rating(db, profile_ratings):
+    profile_ratings_id(db, profile_ratings)
+    db_create_ratings = Ratings(**profile_ratings)
+    create_bd(db=db, db_profile=db_create_ratings)
+    return True

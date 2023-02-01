@@ -67,7 +67,10 @@ def user_update(update_data, current_user):
     if update_data.get('cityId') is not None:
         current_user.city_id = update_data['cityId']
     if update_data.get('districtId') is not None:
-        current_user.district_id = update_data['districtId']
+        if update_data['districtId'] == 0:
+            current_user.district_id = None
+        else:
+            current_user.district_id = update_data['districtId']
     if update_data.get('birthDate') is not None:
         current_user.birthDate = update_data['birthDate']
     if update_data.get('is_male') is not None:

@@ -36,7 +36,8 @@ async def registration_code(number_phone: schema.SchemaPhone, db: Session = Depe
         })
         return answer
 
-    answer = utils.answer_user(False, "Пользователь с данным номер телефона уже зарегистрирован. Войдите в аккаунт")
+    answer = utils.answer_user(
+        False, "Пользователь с данным номер телефона уже зарегистрирован. Войдите в аккаунт")
     return answer
 
 
@@ -48,10 +49,12 @@ async def confirm_code(profile: schema.ProfileCreate, db: Session = Depends(get_
     # тестовый пользователь
     if profile.phone == 79150000000 and profile.code == 1111:
         user = authentication.get_user_phone(db=db, phone=str(profile.phone))
-        password_hash = authentication.get_password_hash(password=profile.password)
+        password_hash = authentication.get_password_hash(
+            password=profile.password)
         user.password = password_hash
         create_bd(db=db, db_profile=user)
-        access_token = authentication.create_access_token(data={"sub": str(user.id)})
+        access_token = authentication.create_access_token(
+            data={"sub": str(user.id)})
         token = schema.Token(id=user.id, token=access_token).dict()
         answer = utils.answer_user_data(True, "Код введен верно", token)
         return answer
@@ -64,16 +67,19 @@ async def confirm_code(profile: schema.ProfileCreate, db: Session = Depends(get_
             profile = utils.profile_id(db, profile)
             db_profile = Players(**profile)
             create_bd(db=db, db_profile=db_profile)
-            access_token = authentication.create_access_token(data={"sub": str(db_profile.id)})
+            access_token = authentication.create_access_token(
+                data={"sub": str(db_profile.id)})
             token = schema.Token(id=db_profile.id, token=access_token).dict()
             answer = utils.answer_user_data(True, "Код введен верно", token)
             delete_bd(db, user)
             return answer
 
-        answer = utils.answer_user(False, "Вы ввели неверный код подтверждения")
+        answer = utils.answer_user(
+            False, "Вы ввели неверный код подтверждения")
         return answer
 
-    answer = utils.answer_user(False, "Запрос на получение кода по СМС не направлялся")
+    answer = utils.answer_user(
+        False, "Запрос на получение кода по СМС не направлялся")
     return answer
 
 
@@ -89,7 +95,8 @@ async def password_recovery(number_phone: schema.SchemaPhone, db: Session = Depe
         create_bd(db=db, db_profile=db_profile)
         answer = utils.answer_user_data(True, "Код отправлен", number_phone)
         return answer
-    answer = utils.answer_user(False, "Пользователь с данным номер телефона не зарегистрирован. Зарегистрируйтесь.")
+    answer = utils.answer_user(
+        False, "Пользователь с данным номер телефона не зарегистрирован. Зарегистрируйтесь.")
     return answer
 
 
@@ -99,29 +106,36 @@ async def change_password(profile: schema.ProfileCreate, db: Session = Depends(g
     user = utils.get_confirmation(db, profile.phone)
     if user:
         if user.code == profile.code:
-            db_profile = authentication.get_user_phone(db=db, phone=str(profile.phone))
-            password_hash = authentication.get_password_hash(password=profile.password)
+            db_profile = authentication.get_user_phone(
+                db=db, phone=str(profile.phone))
+            password_hash = authentication.get_password_hash(
+                password=profile.password)
             db_profile.password = password_hash
             create_bd(db=db, db_profile=db_profile)
             answer = utils.answer_user(True, "Данные успешно сохранены")
             delete_bd(db, user)
             return answer
 
-        answer = utils.answer_user(False, "Вы ввели неверный код подтверждения")
+        answer = utils.answer_user(
+            False, "Вы ввели неверный код подтверждения")
         return answer
 
-    answer = utils.answer_user(False, "Запрос на получение кода по СМС не направлялся")
+    answer = utils.answer_user(
+        False, "Запрос на получение кода по СМС не направлялся")
     return answer
 
 
 @router.post("/auth")
 async def login_for_access_token(form_data: schema.ProfileAuth, db: Session = Depends(get_db)):
     """ Авторизация существующего пользователя """
-    db_profile = authentication.authenticate_user(db=db, phone=form_data.phone, password=form_data.password)
+    db_profile = authentication.authenticate_user(
+        db=db, phone=form_data.phone, password=form_data.password)
     if not isinstance(db_profile, str):
-        access_token = authentication.create_access_token(data={"sub": str(db_profile.id)})
+        access_token = authentication.create_access_token(
+            data={"sub": str(db_profile.id)})
         token = schema.Token(id=db_profile.id, token=access_token).dict()
-        answer = utils.answer_user_data(True, "Пользователь успешно авторизован", token)
+        answer = utils.answer_user_data(
+            True, "Пользователь успешно авторизован", token)
         return answer
 
     answer = utils.answer_user(False, db_profile)
@@ -168,7 +182,6 @@ async def all_users(
     current_user.last_аctivity_date = time.time()
     create_bd(db=db, db_profile=current_user)
 
-
     if powerMax or powerMin:
         if powerMin and not powerMax:
             queries.append(Players.rating >= powerMin)
@@ -186,17 +199,22 @@ async def all_users(
 
     if isFavorite:
         user_profile = []
-        favorite = db.query(Favorite).filter(Favorite.id_user == current_user.id).all()
+        favorite = db.query(Favorite).filter(
+            Favorite.id_user == current_user.id).all()
         for i in favorite:
-            profile_favorite = authentication.get_user_id(db, str(i.id_favorite))
+            profile_favorite = authentication.get_user_id(
+                db, str(i.id_favorite))
             user_profile.append(profile_favorite)
     elif len(queries) > 1:
-        user_profile = db.query(Players).filter(*queries).offset(offset_page).limit(limit_page).all()
+        user_profile = db.query(Players).filter(
+            *queries).offset(offset_page).limit(limit_page).all()
     else:
-        user_profile = db.query(Players).offset(offset_page).limit(limit_page).all()
+        user_profile = db.query(Players).offset(
+            offset_page).limit(limit_page).all()
 
     for i_user_profile in user_profile:
-        schema_profile = utils.preparing_user_profile(i_user_profile, db, current_user.id)
+        schema_profile = utils.preparing_user_profile(
+            i_user_profile, db, current_user.id)
         utils.add_avatar(schema_profile)
         schema_profile = schema.ShemaAnotherPlayer(**schema_profile).dict()
         if isFavorite is False:
@@ -213,12 +231,14 @@ async def all_users(
 
 @router.get("/info")
 async def users_user(id: int,
-                     current_user: Players = Depends(authentication.get_current_user),
+                     current_user: Players = Depends(
+                         authentication.get_current_user),
                      db: Session = Depends(get_db)):
     """ Функция возвращает пользователя по id """
     user_profile = authentication.get_user_id(db=db, user_id=str(id))
     if user_profile:
-        schema_profile = utils.preparing_user_profile(user_profile, db, current_user.id)
+        schema_profile = utils.preparing_user_profile(
+            user_profile, db, current_user.id)
         utils.add_avatar(schema_profile)
         answer = utils.answer_user_data(True, "", schema_profile)
         return answer
@@ -229,16 +249,20 @@ async def users_user(id: int,
 
 @router.put("/profile")
 async def users_update(user_update: schema.ProfileUpdate,
-                       current_user: Players = Depends(authentication.get_current_user),
+                       current_user: Players = Depends(
+                           authentication.get_current_user),
                        db: Session = Depends(get_db)):
     """ Изменение данных пользователя"""
     update_data = user_update.dict(exclude_unset=True)
     if update_data.get("phone"):
-        if current_user.phone != update_data["phone"] and authentication.get_user_phone(db=db, phone=update_data["phone"]):
-            answer = utils.answer_user(False, "Пользователь данным телефоном уже зарегистрирован")
+        if current_user.phone != update_data["phone"] and \
+                authentication.get_user_phone(db=db, phone=update_data["phone"]):
+            answer = utils.answer_user(
+                False, "Пользователь данным телефоном уже зарегистрирован")
             return answer
 
-    update_user = utils.user_update(update_data=update_data, current_user=current_user)
+    update_user = utils.user_update(
+        update_data=update_data, current_user=current_user)
 
     if "media/defaultAvatars/" in update_data["urlAvatar"]:
         save_default_img(current_user.id, update_data["urlAvatar"])
@@ -255,12 +279,15 @@ async def users_update(user_update: schema.ProfileUpdate,
 
 @router.post("/favorite")
 async def create_favorite(favorite_id: schema.SchemaFavorite,
-                          current_user: Players = Depends(authentication.get_current_user),
+                          current_user: Players = Depends(
+                              authentication.get_current_user),
                           db: Session = Depends(get_db)):
     """ Функция добавления фаворитов """
-    db_profile = authentication.get_user_id(db=db, user_id=str(favorite_id.favoriteId))
+    db_profile = authentication.get_user_id(
+        db=db, user_id=str(favorite_id.favoriteId))
     if db_profile:
-        favorite = Favorite(id_user=str(current_user.id), id_favorite=str(db_profile.id))
+        favorite = Favorite(id_user=str(current_user.id),
+                            id_favorite=str(db_profile.id))
         create_bd(db=db, db_profile=favorite)
         answer = utils.answer_user(True, "Запись успешно сохранена.")
         return answer
@@ -271,13 +298,16 @@ async def create_favorite(favorite_id: schema.SchemaFavorite,
 
 @router.delete("/deleteFavorite")
 async def delete_favorite(favorite_id: schema.SchemaFavorite,
-                          current_user: Players = Depends(authentication.get_current_user),
+                          current_user: Players = Depends(
+                              authentication.get_current_user),
                           db: Session = Depends(get_db)):
     """ Функция удаления фаворитов """
-    db_profile = authentication.get_user_id(db=db, user_id=str(favorite_id.favoriteId))
+    db_profile = authentication.get_user_id(
+        db=db, user_id=str(favorite_id.favoriteId))
 
     favorite = db.query(Favorite).filter(
-        and_(Favorite.id_user == current_user.id, Favorite.id_favorite == db_profile.id)
+        and_(Favorite.id_user == current_user.id,
+             Favorite.id_favorite == db_profile.id)
     ).first()
 
     if favorite:

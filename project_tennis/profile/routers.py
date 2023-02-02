@@ -1,5 +1,5 @@
 import time
-
+import requests
 from fastapi import APIRouter
 from sqlalchemy.orm import Session
 from . import schema
@@ -316,4 +316,23 @@ async def delete_favorite(favorite_id: schema.SchemaFavorite,
         return answer
 
     answer = utils.answer_user(False, "Ошибка удаления")
+    return answer
+
+
+
+@router.get("/userSchedule")
+async def read_users_me(current_user: Players = Depends(authentication.get_current_user)):
+    """ Получить график пользователя """
+    url = f'http://bugz.su:8086/player/power-graph/' \
+          f'{current_user.id}/{current_user.name}/' \
+          f'{current_user.registered_at.strftime("%Y")}/' \
+          f'{current_user.registered_at.strftime("%m")}/' \
+          f'{current_user.initial_rating}'
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.content
+        str_data = str(data, 'UTF-8').strip('"')
+        answer = utils.answer_user_data(True, "Ok", {"url": str_data})
+    else:
+        answer = utils.answer_user(False, "Невозможно получить график")
     return answer

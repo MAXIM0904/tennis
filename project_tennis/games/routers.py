@@ -169,10 +169,34 @@ async def evaluation_game(
 
 
 @game.get("/matches/gameSchedule")
-async def game_schedule(
+async def game_schedule(idScore: int,
         current_user: Players = Depends(authentication.get_current_user),
         db: Session = Depends(get_db)
 ):
     """ Функция возвращает url графика """
 
-    return utils.answer_user_data(True, "Ok", {'url': "http://bugz.su:8000/image/media/Schedule/Schedule.PNG"})
+    db_math = db.query(Scores).get(idScore)
+    profile_user_1 = authentication.get_user_id(db, str(db_math.s_id))
+    profile_user_2 = authentication.get_user_id(db, str(db_math.f_id))
+    registration_ident = 1 if profile_user_1.registered_at < profile_user_2.registered_at else 0
+
+    url = f'http://bugz.su:8086/match/power-graph/' \
+          f'{profile_user_1.id}/' \
+          f'{profile_user_1.registered_at.strftime("%Y")}/' \
+          f'{profile_user_1.registered_at.strftime("%m")}/' \
+          f'{profile_user_1.initial_rating}/' \
+          f'{profile_user_1.name}/' \
+          f'{profile_user_2.id}/' \
+          f'{profile_user_2.registered_at.strftime("%Y")}/' \
+          f'{profile_user_2.registered_at.strftime("%m")}/' \
+          f'{profile_user_2.initial_rating}/' \
+          f'{profile_user_2.name}/{registration_ident}'
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        data = response.content
+        str_data = str(data, 'UTF-8').strip('"')
+        answer = utils.answer_user_data(True, "Ok", {"url": str_data})
+    else:
+        answer = utils.answer_user(False, "Невозможно получить график")
+    return answer

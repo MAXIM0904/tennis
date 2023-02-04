@@ -85,6 +85,7 @@ async def users_user(result_survey: schema.ResultSurvey,
         dict_data = ast.literal_eval(data)
         rating = dict_data['power']
     current_user.rating = rating
+    current_user.initial_rating = rating
     create_bd(db=db, db_profile=current_user)
     profile_ratings = {'id': None,
                        'user_id': current_user.id,

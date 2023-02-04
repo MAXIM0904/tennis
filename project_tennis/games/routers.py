@@ -191,6 +191,7 @@ async def game_schedule(idScore: int,
           f'{profile_user_2.registered_at.strftime("%m")}/' \
           f'{profile_user_2.initial_rating}/' \
           f'{profile_user_2.name}/{registration_ident}'
+    url = "http://bugz.su:8086/match/power-graph/429491457/2022/3/1030.0/Евгений Решетник/76897637/2022/10/1120.0/Ivan Kolesnikov/1"
     response = requests.get(url)
 
     if response.status_code == 200:

@@ -69,11 +69,11 @@ async def scores_create(
     if rating_1_user:
         rating_1, stability_1 = rating_1_user[0].rating, rating_1_user[0].rd
     else:
-        rating_1, stability_1 = None, None
+        rating_1, stability_1 = 0, 0
     if rating_2_user:
         rating_2, stability_2 = rating_1_user[0].rating, rating_1_user[0].rd
     else:
-        rating_2, stability_2 = None, None
+        rating_2, stability_2 = 0, 0
 
     if len(scores_create.result) > 3:
         game = 1
@@ -82,6 +82,7 @@ async def scores_create(
 
     url = f"http://bugz.su:8086/v1/power/{db_create_scores.id}/{rating_1}/{stability_1}/{rating_2}/{stability_2}/{game}"
     response = requests.get(url)
+
     if response.status_code == 200:
         data = eval(response.content)
         dict_data = ast.literal_eval(data)
@@ -112,7 +113,7 @@ async def scores_create(
         return utils.answer_user_data(True, "Отлично, счет внесен. Ваша сила изменилась.",  {
             "matchId": db_create_scores.id,
             "powerOld": rating_1,
-            "powerNew": dict_data['new_rating_second_player']
+            "powerNew": current_user.rating
         })
     else:
         return utils.answer_user(False, "Ошибка подключения к базе данных.")

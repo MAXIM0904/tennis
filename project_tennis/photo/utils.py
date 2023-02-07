@@ -16,7 +16,6 @@ def save_img(file_url, file_user, new_name):
 
 def save_default_img(user_id, url_file):
     """Сохранение дефолтных аватарок"""
-    print('ppiiop')
     url_split = url_file.split("/")
     url = '/'.join(url_split[4:])
     file_url = f"media/{user_id}/userPhoto"

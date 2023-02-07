@@ -321,14 +321,21 @@ async def delete_favorite(favorite_id: schema.SchemaFavorite,
 
 
 @router.get("/userSchedule")
-async def read_users_me(current_user: Players = Depends(authentication.get_current_user)):
+async def read_users_me(userId: int,
+                        current_user: Players = Depends(authentication.get_current_user),
+                        db: Session = Depends(get_db)):
     """ Получить график пользователя """
+    profile_user = authentication.get_user_id(db, str(userId))
+    if not profile_user:
+        answer = utils.answer_user(False, "Пользователя с данным id нет")
+        return answer
     url = f'http://bugz.su:8086/player/power-graph/' \
-          f'{current_user.id}/{current_user.name}/' \
-          f'{current_user.registered_at.strftime("%Y")}/' \
-          f'{current_user.registered_at.strftime("%m")}/' \
-          f'{current_user.initial_rating}'
+          f'{profile_user.id}/{profile_user.name}/' \
+          f'{profile_user.registered_at.strftime("%Y")}/' \
+          f'{profile_user.registered_at.strftime("%m")}/' \
+          f'{profile_user.initial_rating}'
     response = requests.get(url)
+
     if response.status_code == 200:
         data = response.content
         str_data = str(data, 'UTF-8').strip('"')

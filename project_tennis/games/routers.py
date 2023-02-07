@@ -170,13 +170,13 @@ async def evaluation_game(
 
 
 @game.get("/matches/gameSchedule")
-async def game_schedule(idScore: int,
+async def game_schedule(matchId: int,
         current_user: Players = Depends(authentication.get_current_user),
         db: Session = Depends(get_db)
 ):
     """ Функция возвращает url графика """
 
-    db_math = db.query(Scores).get(idScore)
+    db_math = db.query(Scores).get(matchId)
     profile_user_1 = authentication.get_user_id(db, str(db_math.s_id))
     profile_user_2 = authentication.get_user_id(db, str(db_math.f_id))
     registration_ident = 1 if profile_user_1.registered_at < profile_user_2.registered_at else 0

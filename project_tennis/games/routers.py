@@ -10,6 +10,7 @@ from sql_app.db import create_bd
 from . import utils_game
 from sqlalchemy import or_, desc
 import requests
+import math
 import ast
 
 game = APIRouter()
@@ -109,11 +110,10 @@ async def scores_create(
             db, str(db_create_scores.s_id))
         profile_user.rating = dict_data['new_rating_second_player']
         create_bd(db=db, db_profile=current_user)
-
         return utils.answer_user_data(True, "Отлично, счет внесен. Ваша сила изменилась.",  {
             "matchId": db_create_scores.id,
-            "powerOld": rating_1,
-            "powerNew": current_user.rating
+            "powerOld": math.ceil(rating_1),
+            "powerNew": math.ceil(current_user.rating)
         })
     else:
         return utils.answer_user(False, "Ошибка подключения к базе данных.")

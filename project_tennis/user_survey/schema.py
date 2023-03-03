@@ -19,4 +19,4 @@ class SchemaSurvey(BaseModel):
 
 
 class ResultSurvey(BaseModel):
-    requests: list[dict]
+    answers: list

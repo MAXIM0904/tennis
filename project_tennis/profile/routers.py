@@ -205,7 +205,7 @@ async def all_users(
             profile_favorite = authentication.get_user_id(
                 db, str(i.id_favorite))
             user_profile.append(profile_favorite)
-    elif len(queries) > 1:
+    elif len(queries) >= 1:
         user_profile = db.query(Players).filter(
             *queries).offset(offset_page).limit(limit_page).all()
     else:
@@ -263,15 +263,15 @@ async def users_update(user_update: schema.ProfileUpdate,
 
     update_user = utils.user_update(
         update_data=update_data, current_user=current_user)
-
-    if "media/defaultAvatars/" in update_data["urlAvatar"]:
-        save_default_img(current_user.id, update_data["urlAvatar"])
+    if update_data.get("urlAvatar"):
+        if "media/defaultAvatars/" in update_data["urlAvatar"]:
+            save_default_img(current_user.id, update_data["urlAvatar"])
     create_bd(db=db, db_profile=update_user)
 
     preparing_response = utils.preparing_user_profile(current_user, db)
-    if update_data["urlAvatar"] == "delete":
-        utils.delete_file(preparing_response)
-
+    if update_data.get("urlAvatar"):
+        if update_data["urlAvatar"] == "delete":
+            utils.delete_file(preparing_response)
     utils.add_avatar(preparing_response)
     answer = utils.answer_user_data(True, "", preparing_response)
     return answer

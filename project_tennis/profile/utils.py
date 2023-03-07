@@ -1,3 +1,5 @@
+import datetime
+from datetime import datetime
 import os
 from random import randint
 from games.models import Scores
@@ -14,9 +16,9 @@ from sqlalchemy import and_, or_, desc
 # временная функция
 from .models import Players
 
-
 # url_host = "http://127.0.0.1:8000"
 url_host = "http://bugz.su:8000"
+
 
 def profile_id(db, profile):
     """ Временная функция генерации id Players"""
@@ -117,7 +119,7 @@ def confirmation_control(db, phone_dict: dict):
     return db_profile
 
 
-def answer_user_data(success: bool, message: str, data: [dict|list]):
+def answer_user_data(success: bool, message: str, data: [dict | list]):
     """ Функция генерации ответа пользователю c data """
     answer = schema.PositiveResponseModel(
         success=success,
@@ -174,7 +176,6 @@ def add_avatar(schema_profile):
             append_url_avatar(i_schema_profile, local_url_avatar(i_schema_profile))
     else:
         append_url_avatar(schema_profile, local_url_avatar(schema_profile))
-
     return schema_profile
 
 
@@ -188,9 +189,18 @@ def name_user(name):
 
 def changing_time_format(date_to_change):
     """Функция преобразования времени в прошедшее с 1970 года"""
-    time_format = date_to_change.strftime('%Y-%m-%d %H:%M:%S')
-    time_math = int(time.mktime(time.strptime(time_format, '%Y-%m-%d %H:%M:%S')))
-    return time_math
+    time_srt = date_to_change.strftime('%Y-%m-%d %H:%M:%S')
+    time_datetime = datetime.strptime(time_srt, "%Y-%m-%d %H:%M:%S")
+    epoch_datetime = datetime.strptime('1970-01-01 00:00:00', "%Y-%m-%d %H:%M:%S")
+    if time_datetime > epoch_datetime:
+        timedelta_sec = int(time.mktime(time.strptime(time_srt, '%Y-%m-%d %H:%M:%S')))
+    else:
+        timedelta_sec = int((time_datetime - epoch_datetime).total_seconds())
+    return timedelta_sec
+
+
+def rounding_rating(rating_user):
+    return round(rating_user)
 
 
 def preparing_user_profile(current_user, db, user_id=None):
@@ -204,6 +214,7 @@ def preparing_user_profile(current_user, db, user_id=None):
     ).order_by(desc(Scores.played_at)).all()
 
     game_date_user = changing_time_format(list_game[0].played_at) if list_game else None
+
 
     current_birth_date = changing_time_format(
         date_to_change=current_user.birth_date
@@ -248,7 +259,7 @@ def preparing_user_profile(current_user, db, user_id=None):
         "racquet": current_user.racquet,
         "strings": current_user.strings_id,
         "countOfMatches": count_matches,
-        "power": round(current_user.rating),
+        "power": rounding_rating(current_user.rating),
         "lastGameDate": game_date_user,
         "lastActivityTime": activity_user
     }
@@ -265,7 +276,6 @@ def preparing_user_profile(current_user, db, user_id=None):
         dict_answer['isFavorite'] = is_favorite
 
     return dict_answer
-
 
 # def create_bot_user(db, profile):
 #     """ Вспомогательная функция для быстрого добавления в базу данных пользователей """

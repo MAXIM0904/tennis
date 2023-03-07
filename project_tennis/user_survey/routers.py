@@ -66,7 +66,7 @@ async def users_user(result_survey: schema.ResultSurvey,
                            }
         utils_game.save_rating(db, profile_ratings)
         answer = utils.answer_user_data(
-            True, "Теперь вы можете найти партнера для игры", {"rating": rating})
+            True, "Теперь вы можете найти партнера для игры", {"rating": utils.rounding_rating(rating)})
     else:
         answer = utils.answer_user(
             False, f'Получены ответы на {len(survey_user)} вопросов. Вы не ответили на {9 - len(survey_user)} вопрос'

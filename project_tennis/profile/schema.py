@@ -50,7 +50,7 @@ class ShemaAnotherPlayer(BaseModel):
     id: int
     lastName: Union[str, None]
     firstName: Union[str, None]
-    power: float
+    power: int| float
     isMale: bool
     countOfMatches: int
     telegram: Union[str, None]

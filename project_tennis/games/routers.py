@@ -82,7 +82,7 @@ async def scores_create(
     else:
         game = 0
 
-    url = f"http://127.0.0.1:8086/v1/power/{db_create_scores.id}/{rating_1}/{stability_1}/{rating_2}/{stability_2}/{game}"
+    url = f"http://bugz.su:8086/v1/power/{db_create_scores.id}/{rating_1}/{stability_1}/{rating_2}/{stability_2}/{game}"
     try:
         response = requests.get(url, timeout=(5, 10))
     except ConnectTimeout:

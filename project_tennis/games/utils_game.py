@@ -65,7 +65,7 @@ def dictionary_save(create_scores, user_id):
 
 def user_power(user_profile, id_match, db):
     # убрать после получения реальных данных
-    id_match = "260"
+    id_match = "507"
     user_profile.id = '23392545'
 
     db_user_ratings = db.query(Ratings).filter(

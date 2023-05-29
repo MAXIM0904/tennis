@@ -12,6 +12,7 @@ from sqlalchemy import or_, desc
 import requests
 import math
 import ast
+from requests.exceptions import ConnectTimeout, ReadTimeout
 
 game = APIRouter()
 
@@ -81,8 +82,14 @@ async def scores_create(
     else:
         game = 0
 
-    url = f"http://bugz.su:8086/v1/power/{db_create_scores.id}/{rating_1}/{stability_1}/{rating_2}/{stability_2}/{game}"
-    response = requests.get(url)
+    url = f"http://127.0.0.1:8086/v1/power/{db_create_scores.id}/{rating_1}/{stability_1}/{rating_2}/{stability_2}/{game}"
+    try:
+        response = requests.get(url, timeout=(5, 10))
+    except ConnectTimeout:
+        return utils.answer_user(False, "Ошибка соединения с сервером теннис-бот. Попробуйте позже.")
+    except ReadTimeout:
+        return utils.answer_user(False, "Ошибка чтения данных с сервера теннис-бот. Попробуйте позже.")
+
 
     if response.status_code == 200:
         data = eval(response.content)

@@ -83,7 +83,7 @@ def user_power(user_profile, id_match, db):
             Players.id == user_profile.id).first()
         OldPower = db_user.initial_rating
 
-    return OldPower, NewPower
+    return int(OldPower), int(NewPower)
 
 
 def preparing_response(db, all_match):

@@ -1,9 +1,10 @@
 from random import randint
 
-from sqlalchemy import desc
+from sqlalchemy import desc, and_
 from games.models import Ratings
 from profile import authentication
 from profile import utils
+from profile.models import Players
 from sql_app.db import create_bd
 
 
@@ -65,17 +66,23 @@ def dictionary_save(create_scores, user_id):
 
 def user_power(user_profile, id_match, db):
     # убрать после получения реальных данных
-    id_match = "507"
-    user_profile.id = '23392545'
+    #id_match = "507"
+    #user_profile.id = '23392545'
 
     db_user_ratings = db.query(Ratings).filter(
         Ratings.user_id == user_profile.id).order_by(desc(Ratings.score_id)).all()
     db_user_match = db.query(Ratings).filter(
-        Ratings.score_id == id_match).first()
+        and_(Ratings.score_id == id_match, Ratings.user_id == user_profile.id)).first()
 
     index = db_user_ratings.index(db_user_match)
-    OldPower = db_user_ratings[index].rating
-    NewPower = db_user_ratings[index - 1].rating
+    NewPower = db_user_ratings[index].rating
+    if index != 0:
+        OldPower = db_user_ratings[index-1].rating
+    else:
+        db_user = db.query(Players).filter(
+            Players.id == user_profile.id).first()
+        OldPower = db_user.initial_rating
+
     return OldPower, NewPower
 
 
@@ -102,15 +109,15 @@ def preparing_response(db, all_match):
         "player1FirstName": name_user_1[0],
         "player1LastName": name_user_1[1],
         "player1AvatarUrl": f"{player_avatar1['urlAvatar']}",
-        "player1OldPower": 2222,
-        "player1NewPower": 3333,
+        "player1OldPower": player1OldPower,
+        "player1NewPower": player1NewPower,
 
         "player2Id": user_2.id,
         "player2FirstName": name_user_2[0],
         "player2LastName": name_user_2[1],
         "player2AvatarUrl": f"{player_avatar2['urlAvatar']}",
-        "player2OldPower": 156,
-        "player2NewPower": 1256,
+        "player2OldPower": player2OldPower,
+        "player2NewPower": player2NewPower,
 
 
         "isPlayer1Win": all_match.match_won,

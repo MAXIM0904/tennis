@@ -125,73 +125,38 @@ def preparing_response(db, all_match):
         "result": [
             {
                 "numberSet": 1,
-                "countPlayer": all_match.first_set_f,
-                "countUser": all_match.first_set_s,
-                "isTie": False,
-                "isSuperTie": False
-            },
-            {
-                "numberSet": 1,
-                "countPlayer": all_match.first_set_tie_f,
-                "countUser": all_match.first_set_tie_s,
-                "isTie": True,
-                "isSuperTie": False
+                "countPlayer1": all_match.first_set_f,
+                "countPlayer2": all_match.first_set_s,
+                "countPlayer1Tie": all_match.first_set_tie_f,
+                "countPlayer2Tie": all_match.first_set_tie_s
             },
             {
                 "numberSet": 2,
-                "countPlayer": all_match.second_set_f,
-                "countUser": all_match.second_set_s,
-                "isTie": False,
-                "isSuperTie": False
-            },
-            {
-                "numberSet": 2,
-                "countPlayer": all_match.second_set_tie_f,
-                "countUser": all_match.second_set_tie_s,
-                "isTie": True,
-                "isSuperTie": False
+                "countPlayer1": all_match.second_set_f,
+                "countPlayer2": all_match.second_set_s,
+                "countPlayer1Tie": all_match.second_set_tie_f,
+                "countPlayer2Tie": all_match.second_set_tie_s
             },
             {
                 "numberSet": 3,
-                "countPlayer": all_match.third_set_f,
-                "countUser": all_match.third_set_s,
-                "isTie": False,
-                "isSuperTie": False
-            },
-            {
-                "numberSet": 3,
-                "countPlayer": all_match.third_set_tie_f,
-                "countUser": all_match.third_set_tie_s,
-                "isTie": True,
-                "isSuperTie": False
+                "countPlayer1": all_match.third_set_f,
+                "countPlayer2": all_match.third_set_s,
+                "countPlayer1Tie": all_match.third_set_tie_f,
+                "countPlayer2Tie": all_match.third_set_tie_s
             },
             {
                 "numberSet": 4,
-                "countPlayer": all_match.fourth_set_f,
-                "countUser": all_match.fourth_set_s,
-                "isTie": False,
-                "isSuperTie": False
-            },
-            {
-                "numberSet": 4,
-                "countPlayer": all_match.fourth_set_tie_f,
-                "countUser": all_match.fourth_set_tie_s,
-                "isTie": True,
-                "isSuperTie": False
+                "countPlayer1": all_match.fourth_set_f,
+                "countPlayer2": all_match.fourth_set_s,
+                "countPlayer1Tie": all_match.fourth_set_tie_f,
+                "countPlayer2Tie": all_match.fourth_set_tie_s
             },
             {
                 "numberSet": 5,
-                "countPlayer": all_match.fifth_set_f,
-                "countUser": all_match.fifth_set_s,
-                "isTie": False,
-                "isSuperTie": False
-            },
-            {
-                "numberSet": 5,
-                "countPlayer": all_match.fifth_set_tie_f,
-                "countUser": all_match.fifth_set_tie_s,
-                "isTie": True,
-                "isSuperTie": False
+                "countPlayer1": all_match.fifth_set_f,
+                "countPlayer2": all_match.fifth_set_s,
+                "countPlayer1Tie": all_match.fifth_set_tie_f,
+                "countPlayer2Tie": all_match.fifth_set_tie_s
             }
         ]
     }

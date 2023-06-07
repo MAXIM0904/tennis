@@ -24,28 +24,33 @@ def dictionary_save(create_scores, user_id):
         if i_result["numberSet"] == 1:
             dict_instance["first_set_f"] = i_result["countPlayer1"]
             dict_instance["first_set_s"] = i_result["countPlayer2"]
-            dict_instance["first_set_tie_f"] = i_result["countPlayer1Tie"]
-            dict_instance["first_set_tie_s"] = i_result["countPlayer2Tie"]
+            if i_result["countPlayer1Tie"] is not None:
+                dict_instance["first_set_tie_f"] = i_result["countPlayer1Tie"]
+                dict_instance["first_set_tie_s"] = i_result["countPlayer2Tie"]
         elif i_result["numberSet"] == 2:
             dict_instance["second_set_f"] = i_result["countPlayer1"]
             dict_instance["second_set_s"] = i_result["countPlayer2"]
-            dict_instance["second_set_tie_f"] = i_result["countPlayer1Tie"]
-            dict_instance["second_set_tie_s"] = i_result["countPlayer2Tie"]
+            if i_result["countPlayer1Tie"] is not None:
+                dict_instance["second_set_tie_f"] = i_result["countPlayer1Tie"]
+                dict_instance["second_set_tie_s"] = i_result["countPlayer2Tie"]
         elif i_result["numberSet"] == 3:
             dict_instance["third_set_f"] = i_result["countPlayer1"]
             dict_instance["third_set_s"] = i_result["countPlayer2"]
-            dict_instance["third_set_tie_f"] = i_result["countPlayer1Tie"]
-            dict_instance["third_set_tie_s"] = i_result["countPlayer2Tie"]
+            if i_result["countPlayer1Tie"] is not None:
+                dict_instance["third_set_tie_f"] = i_result["countPlayer1Tie"]
+                dict_instance["third_set_tie_s"] = i_result["countPlayer2Tie"]
         elif i_result["numberSet"] == 4:
             dict_instance["fourth_set_f"] = i_result["countPlayer1"]
             dict_instance["fourth_set_s"] = i_result["countPlayer2"]
-            dict_instance["fourth_set_tie_f"] = i_result["countPlayer1Tie"]
-            dict_instance["fourth_set_tie_s"] = i_result["countPlayer2Tie"]
+            if i_result["countPlayer1Tie"] is not None:
+                dict_instance["fourth_set_tie_f"] = i_result["countPlayer1Tie"]
+                dict_instance["fourth_set_tie_s"] = i_result["countPlayer2Tie"]
         elif i_result["numberSet"] == 5:
             dict_instance["fifth_set_f"] = i_result["countPlayer1"]
             dict_instance["fifth_set_s"] = i_result["countPlayer2"]
-            dict_instance["fifth_set_tie_f"] = i_result["countPlayer1Tie"]
-            dict_instance["fifth_set_tie_s"] = i_result["countPlayer2Tie"]
+            if i_result["countPlayer1Tie"] is not None:
+                dict_instance["fifth_set_tie_f"] = i_result["countPlayer1Tie"]
+                dict_instance["fifth_set_tie_s"] = i_result["countPlayer2Tie"]
 
     return dict_instance
 

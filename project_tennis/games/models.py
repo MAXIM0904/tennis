@@ -7,7 +7,7 @@ class GameOrders(Base):
     __tablename__ = 'game_orders'
 
     id = Column(Integer, primary_key=True, index=True, unique=True)
-    user_id = Column(Integer, ForeignKey("players.id", ondelete='CASCADE'), autoincrement=False, nullable=True)
+    user_id = Column(BIGINT, ForeignKey("players.id", ondelete='CASCADE'), autoincrement=False, nullable=True)
     loc_szao = Column(Boolean, autoincrement=False, nullable=True)
     loc_sao = Column(Boolean, autoincrement=False, nullable=True)
     loc_svao = Column(Boolean, autoincrement=False, nullable=True)

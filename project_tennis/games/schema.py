@@ -1,5 +1,5 @@
 from typing import List
-from datetime import date
+from datetime import date, datetime
 from pydantic import BaseModel
 from typing import Union
 from datetime import datetime
@@ -22,6 +22,8 @@ class ApplicationCreate(BaseModel):
     tennis_site: Union[str, None]
     pay: Union[int, None]
     game_time_hh: Union[bool, None]
+    status: Union[int, None]
+    created_at: Union[datetime, None]
 
 
 

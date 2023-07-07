@@ -1,5 +1,5 @@
 from typing import List
-from datetime import date, datetime
+from datetime import date
 from pydantic import BaseModel
 from typing import Union
 from datetime import datetime
@@ -25,6 +25,8 @@ class ApplicationCreate(BaseModel):
     status: Union[int, None]
     created_at: Union[datetime, None]
 
+    class Config:
+        orm_mode = True
 
 
 class ApplicationInf(ApplicationCreate):

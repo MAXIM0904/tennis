@@ -25,7 +25,7 @@ class GameOrders(Base):
     pay = Column(Integer, autoincrement=False, nullable=False)
     game_time_hh = Column(Boolean, autoincrement=False, nullable=True)
     status = Column(Integer, autoincrement=False, nullable=True, default=1)
-    created_at = Column(DateTime,  autoincrement=False, nullable=True, default=datetime.utcnow())
+    created_at = Column(TIMESTAMP,  autoincrement=False, nullable=True, default=datetime.utcnow())
 
 
 class DoublesScores(Base):

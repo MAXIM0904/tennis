@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Boolean, Integer, TIMESTAMP, ForeignKey, BIGINT, String, Date
+from sqlalchemy import Column, Boolean, Integer, TIMESTAMP, ForeignKey, BIGINT, String, Date, DateTime
 from sql_app.db import Base
 from datetime import datetime
 
@@ -25,6 +25,8 @@ class GameOrders(Base):
     pay = Column(Integer, autoincrement=False, nullable=False)
     game_time_hh = Column(Boolean, autoincrement=False, nullable=True)
     status = Column(Integer, autoincrement=False, nullable=True, default=1)
+    created_at = Column(DateTime,  autoincrement=False, nullable=True, default=datetime.utcnow())
+
 
 class DoublesScores(Base):
     __tablename__ = 'doubles_scores'

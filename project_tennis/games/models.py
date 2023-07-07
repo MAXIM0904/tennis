@@ -24,6 +24,7 @@ class GameOrders(Base):
     tennis_site = Column(String(255), autoincrement=False, nullable=True)
     pay = Column(Integer, autoincrement=False, nullable=False)
     game_time_hh = Column(Boolean, autoincrement=False, nullable=True)
+    status = Column(Integer, autoincrement=False, nullable=True, default=1)
 
 class DoublesScores(Base):
     __tablename__ = 'doubles_scores'

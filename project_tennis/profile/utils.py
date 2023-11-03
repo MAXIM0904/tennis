@@ -204,7 +204,7 @@ def rounding_rating(rating_user):
 
 
 def preparing_user_profile(current_user, db, user_id=None):
-    """Функция формирует профиль пользователя для приложения """
+    """ Функция формирует профиль пользователя для приложения """
     name = name_user(current_user.name)
     country_id = None
     activity_user = (time.time() - current_user.last_аctivity_date) if current_user.last_аctivity_date else None

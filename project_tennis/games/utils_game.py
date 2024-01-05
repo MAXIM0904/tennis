@@ -1,9 +1,10 @@
 from random import randint
 
-from sqlalchemy import desc
+from sqlalchemy import desc, and_
 from games.models import Ratings
 from profile import authentication
 from profile import utils
+from profile.models import Players
 from sql_app.db import create_bd
 
 
@@ -20,63 +21,60 @@ def dictionary_save(create_scores, user_id):
     }
 
     for i_result in create_scores.result:
-        if i_result["numberSet"] == 1 and not i_result["isTie"]:
-            dict_instance["first_set_f"] = i_result["countUser"]
-            dict_instance["first_set_s"] = i_result["countPlayer"]
-
-        elif i_result["numberSet"] == 1 and i_result["isTie"]:
-            dict_instance["first_set_tie_f"] = i_result["countUser"]
-            dict_instance["first_set_tie_s"] = i_result["countPlayer"]
-
-        elif i_result["numberSet"] == 2 and not i_result["isTie"]:
-            dict_instance["second_set_f"] = i_result["countUser"]
-            dict_instance["second_set_s"] = i_result["countPlayer"]
-
-        elif i_result["numberSet"] == 2 and i_result["isTie"]:
-            dict_instance["second_set_tie_f"] = i_result["countUser"]
-            dict_instance["second_set_tie_s"] = i_result["countPlayer"]
-
-        elif i_result["numberSet"] == 3 and not i_result["isTie"]:
-            dict_instance["third_set_f"] = i_result["countUser"]
-            dict_instance["third_set_s"] = i_result["countPlayer"]
-
-        elif i_result["numberSet"] == 3 and i_result["isTie"]:
-            dict_instance["third_set_tie_f"] = i_result["countUser"]
-            dict_instance["third_set_tie_s"] = i_result["countPlayer"]
-
-        elif i_result["numberSet"] == 4 and not i_result["isTie"]:
-            dict_instance["fourth_set_f"] = i_result["countUser"]
-            dict_instance["fourth_set_s"] = i_result["countPlayer"]
-
-        elif i_result["numberSet"] == 4 and i_result["isTie"]:
-            dict_instance["fourth_set_tie_f"] = i_result["countUser"]
-            dict_instance["fourth_set_tie_s"] = i_result["countPlayer"]
-
-        elif i_result["numberSet"] == 5 and not i_result["isTie"]:
-            dict_instance["fifth_set_f"] = i_result["countUser"]
-            dict_instance["fifth_set_s"] = i_result["countPlayer"]
-
-        elif i_result["numberSet"] == 5 and i_result["isTie"]:
-            dict_instance["fifth_set_tie_f"] = i_result["countUser"]
-            dict_instance["fifth_set_tie_s"] = i_result["countPlayer"]
+        if i_result["numberSet"] == 1:
+            dict_instance["first_set_f"] = i_result["countPlayer1"]
+            dict_instance["first_set_s"] = i_result["countPlayer2"]
+            if "countPlayer1Tie" in i_result:
+                dict_instance["first_set_tie_f"] = i_result["countPlayer1Tie"]
+                dict_instance["first_set_tie_s"] = i_result["countPlayer2Tie"]
+        elif i_result["numberSet"] == 2:
+            dict_instance["second_set_f"] = i_result["countPlayer1"]
+            dict_instance["second_set_s"] = i_result["countPlayer2"]
+            if "countPlayer1Tie" in i_result:
+                dict_instance["second_set_tie_f"] = i_result["countPlayer1Tie"]
+                dict_instance["second_set_tie_s"] = i_result["countPlayer2Tie"]
+        elif i_result["numberSet"] == 3:
+            dict_instance["third_set_f"] = i_result["countPlayer1"]
+            dict_instance["third_set_s"] = i_result["countPlayer2"]
+            if "countPlayer1Tie" in i_result:
+                dict_instance["third_set_tie_f"] = i_result["countPlayer1Tie"]
+                dict_instance["third_set_tie_s"] = i_result["countPlayer2Tie"]
+        elif i_result["numberSet"] == 4:
+            dict_instance["fourth_set_f"] = i_result["countPlayer1"]
+            dict_instance["fourth_set_s"] = i_result["countPlayer2"]
+            if "countPlayer1Tie" in i_result:
+                dict_instance["fourth_set_tie_f"] = i_result["countPlayer1Tie"]
+                dict_instance["fourth_set_tie_s"] = i_result["countPlayer2Tie"]
+        elif i_result["numberSet"] == 5:
+            dict_instance["fifth_set_f"] = i_result["countPlayer1"]
+            dict_instance["fifth_set_s"] = i_result["countPlayer2"]
+            if "countPlayer1Tie" in i_result:
+                dict_instance["fifth_set_tie_f"] = i_result["countPlayer1Tie"]
+                dict_instance["fifth_set_tie_s"] = i_result["countPlayer2Tie"]
 
     return dict_instance
 
 
 def user_power(user_profile, id_match, db):
     # убрать после получения реальных данных
-    id_match = "260"
-    user_profile.id = '23392545'
+    #id_match = "507"
+    #user_profile.id = '23392545'
 
     db_user_ratings = db.query(Ratings).filter(
         Ratings.user_id == user_profile.id).order_by(desc(Ratings.score_id)).all()
     db_user_match = db.query(Ratings).filter(
-        Ratings.score_id == id_match).first()
+        and_(Ratings.score_id == id_match, Ratings.user_id == user_profile.id)).first()
 
     index = db_user_ratings.index(db_user_match)
-    OldPower = db_user_ratings[index].rating
-    NewPower = db_user_ratings[index - 1].rating
-    return OldPower, NewPower
+    NewPower = db_user_ratings[index].rating
+    if index != 0:
+        OldPower = db_user_ratings[index-1].rating
+    else:
+        db_user = db.query(Players).filter(
+            Players.id == user_profile.id).first()
+        OldPower = db_user.initial_rating
+
+    return int(OldPower), int(NewPower)
 
 
 def preparing_response(db, all_match):
@@ -102,15 +100,15 @@ def preparing_response(db, all_match):
         "player1FirstName": name_user_1[0],
         "player1LastName": name_user_1[1],
         "player1AvatarUrl": f"{player_avatar1['urlAvatar']}",
-        "player1OldPower": 2222,
-        "player1NewPower": 3333,
+        "player1OldPower": player1OldPower,
+        "player1NewPower": player1NewPower,
 
         "player2Id": user_2.id,
         "player2FirstName": name_user_2[0],
         "player2LastName": name_user_2[1],
         "player2AvatarUrl": f"{player_avatar2['urlAvatar']}",
-        "player2OldPower": 156,
-        "player2NewPower": 1256,
+        "player2OldPower": player2OldPower,
+        "player2NewPower": player2NewPower,
 
 
         "isPlayer1Win": all_match.match_won,
@@ -118,73 +116,38 @@ def preparing_response(db, all_match):
         "result": [
             {
                 "numberSet": 1,
-                "countPlayer": all_match.first_set_f,
-                "countUser": all_match.first_set_s,
-                "isTie": False,
-                "isSuperTie": False
-            },
-            {
-                "numberSet": 1,
-                "countPlayer": all_match.first_set_tie_f,
-                "countUser": all_match.first_set_tie_s,
-                "isTie": True,
-                "isSuperTie": False
+                "countPlayer1": all_match.first_set_f,
+                "countPlayer2": all_match.first_set_s,
+                "countPlayer1Tie": all_match.first_set_tie_f,
+                "countPlayer2Tie": all_match.first_set_tie_s
             },
             {
                 "numberSet": 2,
-                "countPlayer": all_match.second_set_f,
-                "countUser": all_match.second_set_s,
-                "isTie": False,
-                "isSuperTie": False
-            },
-            {
-                "numberSet": 2,
-                "countPlayer": all_match.second_set_tie_f,
-                "countUser": all_match.second_set_tie_s,
-                "isTie": True,
-                "isSuperTie": False
+                "countPlayer1": all_match.second_set_f,
+                "countPlayer2": all_match.second_set_s,
+                "countPlayer1Tie": all_match.second_set_tie_f,
+                "countPlayer2Tie": all_match.second_set_tie_s
             },
             {
                 "numberSet": 3,
-                "countPlayer": all_match.third_set_f,
-                "countUser": all_match.third_set_s,
-                "isTie": False,
-                "isSuperTie": False
-            },
-            {
-                "numberSet": 3,
-                "countPlayer": all_match.third_set_tie_f,
-                "countUser": all_match.third_set_tie_s,
-                "isTie": True,
-                "isSuperTie": False
+                "countPlayer1": all_match.third_set_f,
+                "countPlayer2": all_match.third_set_s,
+                "countPlayer1Tie": all_match.third_set_tie_f,
+                "countPlayer2Tie": all_match.third_set_tie_s
             },
             {
                 "numberSet": 4,
-                "countPlayer": all_match.fourth_set_f,
-                "countUser": all_match.fourth_set_s,
-                "isTie": False,
-                "isSuperTie": False
-            },
-            {
-                "numberSet": 4,
-                "countPlayer": all_match.fourth_set_tie_f,
-                "countUser": all_match.fourth_set_tie_s,
-                "isTie": True,
-                "isSuperTie": False
+                "countPlayer1": all_match.fourth_set_f,
+                "countPlayer2": all_match.fourth_set_s,
+                "countPlayer1Tie": all_match.fourth_set_tie_f,
+                "countPlayer2Tie": all_match.fourth_set_tie_s
             },
             {
                 "numberSet": 5,
-                "countPlayer": all_match.fifth_set_f,
-                "countUser": all_match.fifth_set_s,
-                "isTie": False,
-                "isSuperTie": False
-            },
-            {
-                "numberSet": 5,
-                "countPlayer": all_match.fifth_set_tie_f,
-                "countUser": all_match.fifth_set_tie_s,
-                "isTie": True,
-                "isSuperTie": False
+                "countPlayer1": all_match.fifth_set_f,
+                "countPlayer2": all_match.fifth_set_s,
+                "countPlayer1Tie": all_match.fifth_set_tie_f,
+                "countPlayer2Tie": all_match.fifth_set_tie_s
             }
         ]
     }

@@ -238,7 +238,7 @@ def preparing_user_profile(current_user, db, user_id=None):
         strings = db.query(Strings).get(current_user.strings_id)
         current_user.strings_id = SchemaInventory(**strings.__dict__).dict() if strings else None
 
-    count_matches = len(db.query(Scores).filter(Scores.f_id == current_user.id).all())
+    count_matches = len(db.query(Scores).filter(Scores.f_id == current_user.id).all()) + len(db.query(Scores).filter(Scores.s_id == current_user.id).all())
 
     dict_answer = {
         "id": current_user.id,

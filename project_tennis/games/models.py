@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Boolean, Integer, TIMESTAMP, ForeignKey, BIGINT, String, Date
+from sqlalchemy import Column, Boolean, Integer, TIMESTAMP, ForeignKey, BIGINT, String, Date, DateTime
 from sql_app.db import Base
 from datetime import datetime
 
@@ -7,7 +7,7 @@ class GameOrders(Base):
     __tablename__ = 'game_orders'
 
     id = Column(Integer, primary_key=True, index=True, unique=True)
-    user_id = Column(Integer, ForeignKey("players.id", ondelete='CASCADE'), autoincrement=False, nullable=True)
+    user_id = Column(BIGINT, ForeignKey("players.id", ondelete='CASCADE'), autoincrement=False, nullable=True)
     loc_szao = Column(Boolean, autoincrement=False, nullable=True)
     loc_sao = Column(Boolean, autoincrement=False, nullable=True)
     loc_svao = Column(Boolean, autoincrement=False, nullable=True)
@@ -24,6 +24,9 @@ class GameOrders(Base):
     tennis_site = Column(String(255), autoincrement=False, nullable=True)
     pay = Column(Integer, autoincrement=False, nullable=False)
     game_time_hh = Column(Boolean, autoincrement=False, nullable=True)
+    status = Column(Integer, autoincrement=False, nullable=True, default=1)
+    created_at = Column(TIMESTAMP,  autoincrement=False, nullable=True, default=datetime.utcnow())
+
 
 class DoublesScores(Base):
     __tablename__ = 'doubles_scores'

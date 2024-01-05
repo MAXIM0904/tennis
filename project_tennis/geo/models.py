@@ -29,4 +29,4 @@ class District(Base):
 
     id = Column(Integer, autoincrement=True, primary_key=True, index=True, unique=True, nullable=False)
     cityid = Column(Integer, autoincrement=False, nullable=True)
-    title = Column(Text, autoincrement=False, nullable=True)
+    name = Column(Text, autoincrement=False, nullable=True)

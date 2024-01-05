@@ -19,7 +19,7 @@ class SchemaCity(BaseModel):
 
 class SchemaDistrict(BaseModel):
     id: int
-    title: str
+    name: str
 
     class Config:
         orm_mode = True

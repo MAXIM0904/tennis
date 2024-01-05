@@ -22,7 +22,11 @@ class ApplicationCreate(BaseModel):
     tennis_site: Union[str, None]
     pay: Union[int, None]
     game_time_hh: Union[bool, None]
+    status: Union[int, None]
+    created_at: Union[datetime, None]
 
+    class Config:
+        orm_mode = True
 
 
 class ApplicationInf(ApplicationCreate):
